@@ -49,7 +49,7 @@
         }
 
         /* ==================================================
-           ZUFALLS-THEMEN FÜR SEKTIONS- & TASTATUR-EASTER-EGGS
+           ZUFALLS-THEMEN (TRIGGER: "404")
         ================================================== */
         body.mode-pixel {
             font-family: 'Press Start 2P', monospace !important;
@@ -475,9 +475,9 @@
     <!-- Overlays -->
     <div id="beaconStormOverlay" class="beacon-storm-overlay"></div>
 
-    <!-- 🕹️ FEUERWEHR-SNAKE MODAL (Tippe "404") -->
+    <!-- 🕹️ FEUERWEHR-SNAKE MODAL (Tippe "fw") -->
     <div id="snakeModal" class="game-modal hidden">
-        <h2 style="margin-bottom: 10px; color: #00d2ff;">🚒 Feuerwehr-Snake (Geheim-Spiel)</h2>
+        <h2 style="margin-bottom: 10px; color: #00d2ff;">🚒 Feuerwehr-Snake</h2>
         <p style="margin-bottom: 15px; font-size: 0.9rem;">Steuerung mit Pfeiltasten. Lösche die Feuer (🔥)!</p>
         <canvas id="snakeCanvas" class="game-canvas" width="400" height="400"></canvas>
         <div style="margin-top: 15px; display:flex; gap:10px;">
@@ -757,7 +757,7 @@
         function closeMobileMenu() { document.getElementById('navMenu').classList.remove('mobile-active'); }
 
         /* ==================================================
-           TASTATUR-EINGABEN ("404" & "rtw")
+           TASTATUR-EINGABEN ("rtw", "fw", "404")
         ================================================== */
         let typedKeys = '';
         document.addEventListener('keydown', (e) => {
@@ -767,16 +767,22 @@
             typedKeys += e.key.toLowerCase();
             if (typedKeys.length > 5) typedKeys = typedKeys.slice(-5);
             
-            // 🚨 Tastaturcode "404": Zufallsdesign + Snake-Spiel
-            if (typedKeys.endsWith('404')) {
-                typedKeys = '';
-                trigger404SecretMode();
-            }
-
             // 🚑 Tastaturcode "rtw": Flappy RTW Game
             if (typedKeys.endsWith('rtw')) {
                 typedKeys = '';
                 openFlappyGame();
+            }
+
+            // 🚒 Tastaturcode "fw": Feuerwehr-Snake
+            if (typedKeys.endsWith('fw')) {
+                typedKeys = '';
+                openSnakeGame();
+            }
+
+            // 🚨 Tastaturcode "404": Zufalls-Geheimmodus (Design)
+            if (typedKeys.endsWith('404')) {
+                typedKeys = '';
+                trigger404SecretMode();
             }
         });
 
@@ -788,8 +794,7 @@
             const randomMode = modes[Math.floor(Math.random() * modes.length)];
             document.body.classList.add(randomMode);
             
-            alert('🚨 GEHEIMER MODUS "404" AKTIVIERT (' + randomMode.replace('mode-', '').toUpperCase() + ')!\nFeuerwehr-Snake startet jetzt!');
-            openSnakeGame();
+            alert('🚨 GEHEIMER MODUS "404" AKTIVIERT (' + randomMode.replace('mode-', '').toUpperCase() + ')!');
         }
 
         /* ==================================================
@@ -847,7 +852,7 @@
         }
 
         /* ==================================================
-           FEUERWEHR-SNAKE GAME
+           FEUERWEHR-SNAKE GAME (Trigger: "fw")
         ================================================== */
         let snakeInterval;
         function openSnakeGame() {
@@ -907,7 +912,7 @@
         }
 
         /* ==================================================
-           FLAPPY RTW GAME
+           FLAPPY RTW GAME (Trigger: "rtw")
         ================================================== */
         let flappyInterval;
         function openFlappyGame() {
