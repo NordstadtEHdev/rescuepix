@@ -16,6 +16,37 @@
 
     <style>
         /* ==================================================
+           SMOOTH GLOBALS & TRANSITIONS
+        ================================================== */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        /* Sanfte Animationen für interaktive Elemente */
+        a, button, .stat-card, .equip-card, .countdown-card, .partner-card, .kodex-item {
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+                        box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+                        background-color 0.3s ease, 
+                        border-color 0.3s ease;
+        }
+
+        .stat-card:hover, .equip-card:hover, .countdown-card:hover, .partner-card:hover, .kodex-item:hover {
+            transform: translateY(-4px);
+        }
+
+        .control-btn:hover, .btn:hover {
+            transform: translateY(-2px) scale(1.03);
+        }
+
+        .control-btn:active, .btn:active {
+            transform: translateY(0) scale(0.97);
+        }
+
+        /* ==================================================
            RESPONSIVE & MOBILE STYLES
         ================================================== */
         header {
@@ -26,8 +57,11 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            transition: background 0.3s ease;
         }
 
         .hamburger {
@@ -38,6 +72,7 @@
             font-size: 1.8rem;
             cursor: pointer;
             padding: 5px;
+            transition: transform 0.2s ease;
         }
 
         @media (max-width: 900px) {
@@ -46,20 +81,29 @@
             }
 
             nav {
-                display: none;
+                display: flex;
+                flex-direction: column;
                 position: absolute;
                 top: 100%;
                 left: 0;
                 width: 100%;
-                background: rgba(15, 23, 42, 0.98);
-                flex-direction: column;
-                padding: 15px 0;
+                background: rgba(15, 23, 42, 0.95);
+                backdrop-filter: blur(16px);
+                padding: 0;
+                max-height: 0;
+                overflow: hidden;
+                opacity: 0;
+                transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                            opacity 0.3s ease, 
+                            padding 0.3s ease;
                 border-bottom: 2px solid var(--border-color, #00d2ff);
-                box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+                box-shadow: 0 15px 30px rgba(0,0,0,0.5);
             }
 
             nav.mobile-active {
-                display: flex;
+                max-height: 500px;
+                opacity: 1;
+                padding: 15px 0;
             }
 
             nav a {
@@ -110,19 +154,21 @@
             pointer-events: none;
             z-index: 99999;
             opacity: 0;
+            transition: opacity 0.2s ease;
         }
         .beacon-storm-overlay.active {
+            opacity: 1;
             animation: germanBlueStrobeStorm 0.25s infinite;
         }
 
         @keyframes germanBlueStrobeStorm {
             0% {
-                background: rgba(0, 102, 255, 0.6);
-                box-shadow: inset 0 0 120px rgba(0, 102, 255, 0.9);
+                background: rgba(0, 102, 255, 0.5);
+                box-shadow: inset 0 0 120px rgba(0, 102, 255, 0.8);
             }
             20% { background: rgba(0, 0, 0, 0.1); box-shadow: none; }
             40% {
-                background: rgba(0, 150, 255, 0.8);
+                background: rgba(0, 150, 255, 0.7);
                 box-shadow: inset 0 0 150px rgba(0, 150, 255, 1);
             }
             60%, 100% { background: rgba(0, 0, 0, 0.2); box-shadow: none; }
@@ -140,8 +186,8 @@
             border-radius: 50%;
             background: #0066ff;
         }
-        .beacon-light.left { animation: germanBeaconLeft 0.4s infinite alternate; }
-        .beacon-light.right { animation: germanBeaconRight 0.4s infinite alternate; }
+        .beacon-light.left { animation: germanBeaconLeft 0.4s infinite alternate ease-in-out; }
+        .beacon-light.right { animation: germanBeaconRight 0.4s infinite alternate ease-in-out; }
 
         @keyframes germanBeaconLeft {
             0% { opacity: 0.2; transform: scale(0.9); box-shadow: none; }
@@ -158,15 +204,16 @@
             bottom: -100px;
             right: 20px;
             background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
             border: 2px solid #00d2ff;
-            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.3);
             border-radius: 12px;
             padding: 15px 20px;
             display: flex;
             align-items: center;
             gap: 15px;
             z-index: 100000;
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             color: #fff;
             max-width: 90vw;
         }
@@ -181,45 +228,6 @@
         }
         .achievement-desc { font-size: 0.95rem; margin-top: 2px; }
 
-        /* FEUERWEHRMANN BILDSCHIRM PUTZEN ANIMATION */
-        .screen-wiper {
-            position: fixed;
-            top: 0; 
-            left: -300px;
-            width: 250px; 
-            height: 100vh;
-            z-index: 99999;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .screen-wiper img {
-            height: 250px;
-            width: auto;
-            filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.6));
-        }
-        .screen-wiper.wiping { 
-            animation: wipeScreenWithFireman 2.5s ease-in-out forwards; 
-        }
-        
-        /* Putz-Effekt Spur */
-        .screen-wiper::after {
-            content: '';
-            position: absolute;
-            right: 180px;
-            top: 0;
-            width: 100vw;
-            height: 100vh;
-            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255, 255, 255, 0.25) 80%, rgba(255,255,255,0.4) 100%);
-            pointer-events: none;
-        }
-
-        @keyframes wipeScreenWithFireman {
-            0% { left: -300px; }
-            100% { left: 110vw; }
-        }
-
         .waschtag-banner {
             background: linear-gradient(90deg, #0284c7, #06b6d4);
             color: white;
@@ -227,7 +235,13 @@
             padding: 8px;
             font-weight: bold;
             font-size: 0.95rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: fadeInDown 0.5s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .partner-logo-img {
@@ -236,6 +250,19 @@
             object-fit: contain;
             margin-bottom: 15px;
             border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+        .partner-card:hover .partner-logo-img {
+            transform: scale(1.05);
+        }
+
+        .bg-modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .bg-modal.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -245,7 +272,7 @@
     <div id="waschtagContainer"></div>
 
     <!-- 🚨 DEUTSCHES BLAULICHT LADESCREEN -->
-    <div id="loadingScreen" class="loading-screen">
+    <div id="loadingScreen" class="loading-screen" style="transition: opacity 0.5s ease, visibility 0.5s ease;">
         <div class="beacon-loader">
             <div class="beacon-light left"></div>
             <div class="beacon-light right"></div>
@@ -258,9 +285,6 @@
 
     <!-- Overlays -->
     <div id="beaconStormOverlay" class="beacon-storm-overlay"></div>
-    <div id="screenWiper" class="screen-wiper">
-        <img src="image_560620.png" alt="Feuerwehrmann putzt">
-    </div>
 
     <!-- Achievement Toast Popup -->
     <div id="achievementToast" class="achievement-toast">
@@ -304,7 +328,7 @@
 
     <!-- Header Navigation mit Mobile-Support -->
     <header>
-        <div class="logo" onclick="countLogoClicks()">rescuep<span class="beacon-i">i</span>x</div>
+        <div class="logo" onclick="countLogoClicks()" style="cursor: pointer;">rescuep<span class="beacon-i">i</span>x</div>
 
         <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menü öffnen">☰</button>
 
@@ -322,8 +346,6 @@
         </nav>
 
         <div class="controls-wrapper">
-            <button class="control-btn" onclick="triggerScreenWipe()" title="Feuerwehrmann putzt den Bildschirm">🧑‍🚒</button>
-
             <button class="control-btn storm-btn" onclick="triggerBeaconStorm()" title="Blaulicht-Gewitter auslösen!">🚨</button>
             <button id="themeToggleBtn" class="control-btn" onclick="toggleTheme()" title="Design wechseln">🌙</button>
             <button class="control-btn" onclick="toggleBackgroundSelector()" title="Hintergrundbild ändern">🖼️</button>
@@ -423,7 +445,7 @@
 
             <div style="text-align: center; margin-top: 25px;">
                 <button class="btn social-btn" onclick="toggleQRCode()">📲 Seite per QR-Code teilen</button>
-                <div id="qrCodeContainer" class="qr-container hidden">
+                <div id="qrCodeContainer" class="qr-container hidden" style="transition: all 0.3s ease;">
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://rescuepix.vercel.app" alt="QR Code" style="margin-top: 15px; border-radius: 8px;">
                     <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Scannen zum Aufrufen auf dem Smartphone</p>
                 </div>
@@ -631,6 +653,9 @@
             const newEntry = document.createElement('div');
             newEntry.className = 'log-entry';
             newEntry.style.borderLeftColor = '#00d2ff';
+            newEntry.style.opacity = '0';
+            newEntry.style.transform = 'translateY(-10px)';
+            newEntry.style.transition = 'all 0.4s ease';
             
             newEntry.innerHTML = `
                 <div class="log-header">
@@ -640,6 +665,11 @@
                 <p class="log-text">„${text}“</p>
             `;
             list.prepend(newEntry);
+
+            requestAnimationFrame(() => {
+                newEntry.style.opacity = '1';
+                newEntry.style.transform = 'translateY(0)';
+            });
 
             try {
                 await fetch('https://formspree.io/f/xjgnnvwn', {
@@ -728,14 +758,6 @@
             }
         });
 
-        /* FEUERWEHRMANN WISCHER ANIMATION */
-        function triggerScreenWipe() {
-            const wiper = document.getElementById('screenWiper');
-            wiper.classList.remove('wiping');
-            void wiper.offsetWidth;
-            wiper.classList.add('wiping');
-        }
-
         const i18n = {
             de: {
                 ticker: '+++ <strong>LIVE-TICKER:</strong> Neue Einsatzfotos aus Thüringen online! +++ Bleibt auf dem Laufenden auf Instagram @rescuepix +++ Du machst auch Blaulichtfotos? Jetzt unten bewerben! +++',
@@ -823,7 +845,7 @@
                 const loader = document.getElementById('loadingScreen');
                 loader.style.opacity = '0';
                 loader.style.visibility = 'hidden';
-            }, 800);
+            }, 600);
             checkNightShift();
         });
 
