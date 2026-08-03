@@ -16,7 +16,7 @@
 
     <style>
         /* ==================================================
-           RESPONSIVE & MOBILE STYLES (HANDY-ANPASSUNG)
+           RESPONSIVE & MOBILE STYLES
         ================================================== */
         header {
             display: flex;
@@ -78,7 +78,6 @@
                 font-size: 0.9rem;
             }
 
-            /* Fluid Grid Layouts für Handys */
             .equip-grid, 
             .countdown-grid, 
             .partner-grid, 
@@ -88,7 +87,6 @@
                 gap: 15px !important;
             }
 
-            /* Galerie Iframe Skalierung für Handys */
             #driveGalleryContainer iframe {
                 height: 450px !important;
             }
@@ -183,43 +181,43 @@
         }
         .achievement-desc { font-size: 0.95rem; margin-top: 2px; }
 
-        /* HYDRANT WASSER & WISCH-ANIMATION */
-        .water-splash-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none;
-            z-index: 99998;
-            opacity: 0;
-            background: radial-gradient(circle, rgba(0, 183, 255, 0.6) 0%, rgba(0, 102, 255, 0) 80%);
-            transition: opacity 0.3s;
-        }
-        .water-splash-overlay.active {
-            opacity: 1;
-            animation: splashEffect 1.2s forwards;
-        }
-        @keyframes splashEffect {
-            0% { opacity: 0; transform: scale(0.8); }
-            30% { opacity: 1; transform: scale(1.05); }
-            100% { opacity: 0; transform: scale(1); }
-        }
-
+        /* FEUERWEHRMANN BILDSCHIRM PUTZEN ANIMATION */
         .screen-wiper {
             position: fixed;
-            top: 0; left: -150px;
-            width: 120px; height: 100vh;
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.9);
+            top: 0; 
+            left: -300px;
+            width: 250px; 
+            height: 100vh;
             z-index: 99999;
             pointer-events: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4rem;
         }
-        .screen-wiper.wiping { animation: wipeScreen 2.2s ease-in-out forwards; }
-        @keyframes wipeScreen {
-            0% { left: -150px; }
-            100% { left: 105vw; }
+        .screen-wiper img {
+            height: 250px;
+            width: auto;
+            filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.6));
+        }
+        .screen-wiper.wiping { 
+            animation: wipeScreenWithFireman 2.5s ease-in-out forwards; 
+        }
+        
+        /* Putz-Effekt Spur */
+        .screen-wiper::after {
+            content: '';
+            position: absolute;
+            right: 180px;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255, 255, 255, 0.25) 80%, rgba(255,255,255,0.4) 100%);
+            pointer-events: none;
+        }
+
+        @keyframes wipeScreenWithFireman {
+            0% { left: -300px; }
+            100% { left: 110vw; }
         }
 
         .waschtag-banner {
@@ -231,11 +229,19 @@
             font-size: 0.95rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
+
+        .partner-logo-img {
+            max-width: 180px;
+            max-height: 120px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
     </style>
 </head>
 <body class="dark-mode">
 
-    <!-- WASCHTAG BANNER CONTAINER (1% CHANCE) -->
+    <!-- WASCHTAG BANNER CONTAINER -->
     <div id="waschtagContainer"></div>
 
     <!-- 🚨 DEUTSCHES BLAULICHT LADESCREEN -->
@@ -252,8 +258,9 @@
 
     <!-- Overlays -->
     <div id="beaconStormOverlay" class="beacon-storm-overlay"></div>
-    <div id="waterSplash" class="water-splash-overlay"></div>
-    <div id="screenWiper" class="screen-wiper">🧑‍🚒🧽</div>
+    <div id="screenWiper" class="screen-wiper">
+        <img src="image_560620.png" alt="Feuerwehrmann putzt">
+    </div>
 
     <!-- Achievement Toast Popup -->
     <div id="achievementToast" class="achievement-toast">
@@ -299,7 +306,6 @@
     <header>
         <div class="logo" onclick="countLogoClicks()">rescuep<span class="beacon-i">i</span>x</div>
 
-        <!-- Hamburger Icon für Handys -->
         <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menü öffnen">☰</button>
 
         <nav id="navMenu">
@@ -309,21 +315,19 @@
             <a href="#galerie" id="nav-galerie" onclick="closeMobileMenu()">Galerie</a>
             <a href="#messen" id="nav-messen" onclick="closeMobileMenu()">Messen</a>
             <a href="#partner" id="nav-partner" onclick="closeMobileMenu()">Partner</a>
-            <a href="#logbuch" id="nav-logbuch" onclick="closeMobileMenu()">Logbuch</a>
+            <a href="#kommentare" id="nav-kommentare" onclick="closeMobileMenu()">Kommentare</a>
             <a href="#kodex" id="nav-kodex" onclick="closeMobileMenu()">Kodex</a>
             <a href="#social" id="nav-social" onclick="closeMobileMenu()">Social Media</a>
             <a href="#bewerbung" id="nav-bewerbung" onclick="closeMobileMenu()">Bewerbung</a>
         </nav>
 
         <div class="controls-wrapper">
-            <button class="control-btn" onclick="triggerScreenWipe()" title="Feuerwehrmann wischt Bildschirm">🧑‍🚒</button>
-            <button class="control-btn" onclick="triggerHydrantSplash()" title="Hydrant spritzt Wasser">🚰</button>
+            <button class="control-btn" onclick="triggerScreenWipe()" title="Feuerwehrmann putzt den Bildschirm">🧑‍🚒</button>
 
             <button class="control-btn storm-btn" onclick="triggerBeaconStorm()" title="Blaulicht-Gewitter auslösen!">🚨</button>
             <button id="themeToggleBtn" class="control-btn" onclick="toggleTheme()" title="Design wechseln">🌙</button>
             <button class="control-btn" onclick="toggleBackgroundSelector()" title="Hintergrundbild ändern">🖼️</button>
 
-            <!-- Sprach-Umschalter -->
             <div class="lang-switcher">
                 <button class="lang-btn active" onclick="setLanguage('de', event)">🇩🇪</button>
                 <button class="lang-btn" onclick="setLanguage('en', event)">🇬🇧</button>
@@ -483,7 +487,7 @@
 
             <div class="partner-grid">
                 <div class="partner-card">
-                    <img src="image.png" alt="BOS Bilder Thüringen Logo" class="partner-logo">
+                    <img src="image_560620.png" alt="BOS Bilder Thüringen Logo" class="partner-logo-img">
                     <h4>BOS Bilder Thüringen</h4>
                     <p>Gemeinsames Netzwerk für Einsatzfotografie & Berichterstattung</p>
                 </div>
@@ -491,19 +495,18 @@
         </div>
     </section>
 
-    <!-- 🚨 KAMERADEN-LOGBUCH / FEEDBACK MIT EMAIL API -->
-    <section id="logbuch" class="feedback-section">
+    <!-- 💬 KOMMENTARE MIT EMAIL API -->
+    <section id="kommentare" class="feedback-section">
         <div class="card-container" style="max-width: 900px;">
-            <h2 style="text-align: center;">📖 Kameraden-Logbuch</h2>
+            <h2 style="text-align: center;">💬 Kommentare</h2>
             <p class="subtitle" style="text-align: center; margin-bottom: 30px;">
                 Feedback, Dankeschön oder Verbesserungsvorschläge von Einsatzkräften & Besuchern.
             </p>
 
             <div class="logbuch-list"></div>
 
-            <!-- Formspree Mail API Integration -->
             <form id="logbuchForm" class="logbuch-form" onsubmit="addLogEntry(event)">
-                <h3>Eintrag hinterlassen</h3>
+                <h3>Kommentar hinterlassen</h3>
                 <div class="input-group">
                     <input type="text" id="logName" name="name" placeholder="Dein Name / Organisation (z. B. FFW Gotha)" required>
                     <select id="logType" name="typ" class="log-select">
@@ -512,8 +515,8 @@
                         <option value="Allgemein">💬 Allgemein</option>
                     </select>
                 </div>
-                <textarea id="logText" name="nachricht" rows="3" placeholder="Dein Feedback oder deine Nachricht an rescuepix..." required></textarea>
-                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Eintrag absenden & per E-Mail senden</button>
+                <textarea id="logText" name="nachricht" rows="3" placeholder="Dein Kommentar oder deine Nachricht an rescuepix..." required></textarea>
+                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Kommentar absenden & per E-Mail senden</button>
             </form>
         </div>
     </section>
@@ -536,8 +539,8 @@
                     <p>Kennzeichen, Gesichter Betroffener, Verletzungen sowie Einsatznummern werden konsequent unkenntlich gemacht.</p>
                 </div>
                 <div class="kodex-item">
-                    <h4>🤝 Transparenz & Absprache</h4>
-                    <p>Enge Abstimmung mit den Pressesprechern, Einsatzleitungen und Rettungsdiensten vor Ort in Thüringen.</p>
+                    <h4>🤝 Volle Transparenz</h4>
+                    <p>Volle Transparenz.</p>
                 </div>
             </div>
         </div>
@@ -611,9 +614,6 @@
 
     <!-- INTERAKTIVE SKRIPTE -->
     <script>
-        /* ==================================================
-           0. MOBILE MENÜ TOGGLE
-        ================================================== */
         function toggleMobileMenu() {
             document.getElementById('navMenu').classList.toggle('mobile-active');
         }
@@ -621,16 +621,12 @@
             document.getElementById('navMenu').classList.remove('mobile-active');
         }
 
-        /* ==================================================
-           1. LOGBUCH VIA FORM SPREE EMAIL API SENDEN
-        ================================================== */
         async function addLogEntry(e) {
             e.preventDefault();
             const name = document.getElementById('logName').value;
             const type = document.getElementById('logType').value;
             const text = document.getElementById('logText').value;
 
-            // Einträge lokal auf der Website anzeigen
             const list = document.querySelector('.logbuch-list');
             const newEntry = document.createElement('div');
             newEntry.className = 'log-entry';
@@ -645,29 +641,25 @@
             `;
             list.prepend(newEntry);
 
-            // Per API an deine E-Mail senden
             try {
                 await fetch('https://formspree.io/f/xjgnnvwn', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        Formular: "Kameraden-Logbuch Eintrag",
+                        Formular: "Kommentar Eintrag",
                         Name: name,
                         Kategorie: type,
                         Nachricht: text
                     })
                 });
-                alert('Vielen Dank! Dein Eintrag wurde im Logbuch veröffentlicht und per E-Mail an rescuepix gesendet.');
+                alert('Vielen Dank! Dein Kommentar wurde veröffentlicht und per E-Mail gesendet.');
             } catch (err) {
-                alert('Eintrag im Logbuch gepostet!');
+                alert('Kommentar veröffentlicht!');
             }
 
             e.target.reset();
         }
 
-        /* ==================================================
-           2. ERFOLGE / ACHIEVEMENTS SYSTEM
-        ================================================== */
         const unlockedAchievements = new Set();
 
         function unlockAchievement(icon, title, desc) {
@@ -720,9 +712,6 @@
             }
         });
 
-        /* ==================================================
-           3. KONAMI CODE (↑↑↓↓←→←→BA)
-        ================================================== */
         const konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
         let konamiIndex = 0;
 
@@ -739,9 +728,7 @@
             }
         });
 
-        /* ==================================================
-           4. FEUERWEHRMANN WISCHER & HYDRANT WATER SPLASH
-        ================================================== */
+        /* FEUERWEHRMANN WISCHER ANIMATION */
         function triggerScreenWipe() {
             const wiper = document.getElementById('screenWiper');
             wiper.classList.remove('wiping');
@@ -749,21 +736,10 @@
             wiper.classList.add('wiping');
         }
 
-        function triggerHydrantSplash() {
-            const splash = document.getElementById('waterSplash');
-            splash.classList.remove('active');
-            void splash.offsetWidth;
-            splash.classList.add('active');
-            setTimeout(() => splash.classList.remove('active'), 1200);
-        }
-
-        /* ==================================================
-           5. STANDARD FUNKTIONEN & INITIALISIERUNG
-        ================================================== */
         const i18n = {
             de: {
                 ticker: '+++ <strong>LIVE-TICKER:</strong> Neue Einsatzfotos aus Thüringen online! +++ Bleibt auf dem Laufenden auf Instagram @rescuepix +++ Du machst auch Blaulichtfotos? Jetzt unten bewerben! +++',
-                navHome: 'Start', navStats: 'Zahlen', navEquip: 'Kamera-Gear', navGalerie: 'Galerie', navMessen: 'Messen', navPartner: 'Partner', navLogbuch: 'Logbuch', navKodex: 'Kodex', navSocial: 'Social Media', navBewerbung: 'Bewerbung',
+                navHome: 'Start', navStats: 'Zahlen', navEquip: 'Kamera-Gear', navGalerie: 'Galerie', navMessen: 'Messen', navPartner: 'Partner', navKommentare: 'Kommentare', navKodex: 'Kodex', navSocial: 'Social Media', navBewerbung: 'Bewerbung',
                 heroBadge: 'BOS Fotografie Thüringen', heroSub: 'Einsatzkräfte, Dynamik und Emotionen im richtigen Moment festgehalten.', btnGallery: 'Galerie ansehen',
                 stat1Desc: 'Fotos geschossen', stat2Desc: 'Einsätze & Übungen', stat3Desc: 'Leidenschaft & BOS', equipTitle: '📷 Kamera-Equipment & Technik', equipSub: 'Einsatzdokumentation erfordert verlässliches Werkzeug bei Tag und Nacht.',
                 galleryTitle: 'Einsatzgalerie', gallerySub: 'Alle Fotos werden direkt live aus unserem Google Cloud Ordner geladen.', kodexTitle: '🛡️ Verhaltenskodex & Einsatzethik', kodexSub: 'Respektvoller Umgang an der Einsatzstelle hat oberste Priorität.',
@@ -772,7 +748,7 @@
             },
             en: {
                 ticker: '+++ <strong>LIVE TICKER:</strong> New emergency response photos from Thuringia online! +++ Follow us on Instagram @rescuepix +++ Are you an emergency photographer? Apply below! +++',
-                navHome: 'Home', navStats: 'Stats', navEquip: 'Camera Gear', navGalerie: 'Gallery', navMessen: 'Fairs', navPartner: 'Partners', navLogbuch: 'Logbook', navKodex: 'Code of Ethics', navSocial: 'Social Media', navBewerbung: 'Apply',
+                navHome: 'Home', navStats: 'Stats', navEquip: 'Camera Gear', navGalerie: 'Gallery', navMessen: 'Fairs', navPartner: 'Partners', navKommentare: 'Comments', navKodex: 'Code of Ethics', navSocial: 'Social Media', navBewerbung: 'Apply',
                 heroBadge: 'Emergency Photography Thuringia', heroSub: 'Emergency services, action, and emotions captured at the right moment.', btnGallery: 'View Gallery',
                 stat1Desc: 'Photos Taken', stat2Desc: 'Missions & Drills', stat3Desc: 'Passion & Dedication', equipTitle: '📷 Camera Equipment & Gear', equipSub: 'Emergency documentation requires reliable tools day and night.',
                 galleryTitle: 'Action Gallery', gallerySub: 'All photos are loaded directly from our Google Cloud folder.', kodexTitle: '🛡️ Code of Ethics & Privacy', kodexSub: 'Respectful and professional conduct at scenes is our highest priority.',
@@ -792,7 +768,7 @@
             document.getElementById('nav-galerie').innerText = t.navGalerie;
             document.getElementById('nav-messen').innerText = t.navMessen;
             document.getElementById('nav-partner').innerText = t.navPartner;
-            document.getElementById('nav-logbuch').innerText = t.navLogbuch;
+            document.getElementById('nav-kommentare').innerText = t.navKommentare;
             document.getElementById('nav-kodex').innerText = t.navKodex;
             document.getElementById('nav-social').innerText = t.navSocial;
             document.getElementById('nav-bewerbung').innerText = t.navBewerbung;
