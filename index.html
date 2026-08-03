@@ -16,7 +16,95 @@
 
     <style>
         /* ==================================================
-           DEUTSCHES BLAULICHT DOPPELBLITZ / STROBE EFFECT (🚨)
+           RESPONSIVE & MOBILE STYLES (HANDY-ANPASSUNG)
+        ================================================== */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.8rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        @media (max-width: 900px) {
+            .hamburger {
+                display: block;
+            }
+
+            nav {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: rgba(15, 23, 42, 0.98);
+                flex-direction: column;
+                padding: 15px 0;
+                border-bottom: 2px solid var(--border-color, #00d2ff);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            }
+
+            nav.mobile-active {
+                display: flex;
+            }
+
+            nav a {
+                padding: 12px 25px;
+                width: 100%;
+                text-align: left;
+                font-size: 1.1rem;
+            }
+
+            .controls-wrapper {
+                gap: 8px;
+            }
+            
+            .control-btn {
+                padding: 6px 10px;
+                font-size: 0.9rem;
+            }
+
+            /* Fluid Grid Layouts für Handys */
+            .equip-grid, 
+            .countdown-grid, 
+            .partner-grid, 
+            .kodex-grid,
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+
+            /* Galerie Iframe Skalierung für Handys */
+            #driveGalleryContainer iframe {
+                height: 450px !important;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem !important;
+            }
+
+            .input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        /* ==================================================
+           DEUTSCHES BLAULICHT DOPPELBLITZ (🚨)
         ================================================== */
         .beacon-storm-overlay {
             position: fixed;
@@ -34,21 +122,14 @@
                 background: rgba(0, 102, 255, 0.6);
                 box-shadow: inset 0 0 120px rgba(0, 102, 255, 0.9);
             }
-            20% {
-                background: rgba(0, 0, 0, 0.1);
-                box-shadow: none;
-            }
+            20% { background: rgba(0, 0, 0, 0.1); box-shadow: none; }
             40% {
                 background: rgba(0, 150, 255, 0.8);
                 box-shadow: inset 0 0 150px rgba(0, 150, 255, 1);
             }
-            60%, 100% {
-                background: rgba(0, 0, 0, 0.2);
-                box-shadow: none;
-            }
+            60%, 100% { background: rgba(0, 0, 0, 0.2); box-shadow: none; }
         }
 
-        /* Deutsches Blaulicht Loader Lights (Dual-Blue) */
         .beacon-loader {
             display: flex;
             gap: 15px;
@@ -61,12 +142,8 @@
             border-radius: 50%;
             background: #0066ff;
         }
-        .beacon-light.left {
-            animation: germanBeaconLeft 0.4s infinite alternate;
-        }
-        .beacon-light.right {
-            animation: germanBeaconRight 0.4s infinite alternate;
-        }
+        .beacon-light.left { animation: germanBeaconLeft 0.4s infinite alternate; }
+        .beacon-light.right { animation: germanBeaconRight 0.4s infinite alternate; }
 
         @keyframes germanBeaconLeft {
             0% { opacity: 0.2; transform: scale(0.9); box-shadow: none; }
@@ -77,9 +154,7 @@
             100% { opacity: 0.2; transform: scale(0.9); box-shadow: none; }
         }
 
-        /* ==================================================
-           GEHEIME ERFOLGE (ACHIEVEMENT POPUP)
-        ================================================== */
+        /* ACHIEVEMENT POPUP */
         .achievement-toast {
             position: fixed;
             bottom: -100px;
@@ -95,13 +170,10 @@
             z-index: 100000;
             transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             color: #fff;
+            max-width: 90vw;
         }
-        .achievement-toast.show {
-            bottom: 20px;
-        }
-        .achievement-icon {
-            font-size: 2.2rem;
-        }
+        .achievement-toast.show { bottom: 20px; }
+        .achievement-icon { font-size: 2.2rem; }
         .achievement-title {
             font-weight: bold;
             color: #00d2ff;
@@ -109,14 +181,9 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        .achievement-desc {
-            font-size: 1rem;
-            margin-top: 2px;
-        }
+        .achievement-desc { font-size: 0.95rem; margin-top: 2px; }
 
-        /* ==================================================
-           HYDRANT WASSER & FEUERWEHRMANN WISCH-ANIMATION
-        ================================================== */
+        /* HYDRANT WASSER & WISCH-ANIMATION */
         .water-splash-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -149,15 +216,12 @@
             justify-content: center;
             font-size: 4rem;
         }
-        .screen-wiper.wiping {
-            animation: wipeScreen 2.2s ease-in-out forwards;
-        }
+        .screen-wiper.wiping { animation: wipeScreen 2.2s ease-in-out forwards; }
         @keyframes wipeScreen {
             0% { left: -150px; }
             100% { left: 105vw; }
         }
 
-        /* WASCHTAG BANNER */
         .waschtag-banner {
             background: linear-gradient(90deg, #0284c7, #06b6d4);
             color: white;
@@ -174,6 +238,14 @@
     <!-- WASCHTAG BANNER CONTAINER (1% CHANCE) -->
     <div id="waschtagContainer"></div>
 
+    <!-- 🚨 DEUTSCHES BLAULICHT LADESCREEN -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="beacon-loader">
+            <div class="beacon-light left"></div>
+            <div class="beacon-light right"></div>
+        </div>
+        <p style="margin-top: 15px;">rescuepix wird geladen...</p>
+    </div>
 
     <!-- 🚒 EASTER EGG FEUERWEHR AUTO -->
     <div id="easterEggTruck" class="easter-egg-truck">🚒💨</div>
@@ -199,23 +271,48 @@
         </div>
     </div>
 
+    <!-- Fahrstreifen Drehleiter Animation -->
+    <div class="top-truck-bar">
+        <div class="ladder-truck-container">
+            <svg class="ladder-truck" viewBox="0 0 160 60" width="90" height="34">
+                <rect x="10" y="28" width="120" height="20" rx="4" fill="#dc2626" />
+                <rect x="110" y="20" width="35" height="28" rx="5" fill="#ef4444" />
+                <path d="M 125 24 L 140 24 L 140 34 L 125 34 Z" fill="#93c5fd" />
+                <circle cx="120" cy="16" r="4" fill="#00d2ff" class="truck-beacon" />
+                <g class="ladder-group">
+                    <rect x="15" y="18" width="85" height="4" fill="#cbd5e1" stroke="#475569" stroke-width="1"/>
+                    <rect x="15" y="12" width="85" height="4" fill="#cbd5e1" stroke="#475569" stroke-width="1"/>
+                    <line x1="25" y1="12" x2="25" y2="22" stroke="#475569" stroke-width="1.5"/>
+                    <line x1="40" y1="12" x2="40" y2="22" stroke="#475569" stroke-width="1.5"/>
+                    <line x1="55" y1="12" x2="55" y2="22" stroke="#475569" stroke-width="1.5"/>
+                    <line x1="70" y1="12" x2="70" y2="22" stroke="#475569" stroke-width="1.5"/>
+                    <line x1="85" y1="12" x2="85" y2="22" stroke="#475569" stroke-width="1.5"/>
+                </g>
+                <circle cx="30" cy="48" r="8" fill="#1e293b" stroke="#94a3b8" stroke-width="2"/>
+                <circle cx="55" cy="48" r="8" fill="#1e293b" stroke="#94a3b8" stroke-width="2"/>
+                <circle cx="125" cy="48" r="8" fill="#1e293b" stroke="#94a3b8" stroke-width="2"/>
+            </svg>
+        </div>
+    </div>
 
-
-    <!-- Header Navigation -->
+    <!-- Header Navigation mit Mobile-Support -->
     <header>
         <div class="logo" onclick="countLogoClicks()">rescuep<span class="beacon-i">i</span>x</div>
 
-        <nav>
-            <a href="#home" id="nav-home">Start</a>
-            <a href="#stats" id="nav-stats">Zahlen</a>
-            <a href="#equipment" id="nav-equip">Kamera-Gear</a>
-            <a href="#galerie" id="nav-galerie">Galerie</a>
-            <a href="#messen" id="nav-messen">Messen</a>
-            <a href="#partner" id="nav-partner">Partner</a>
-            <a href="#logbuch" id="nav-logbuch">Logbuch</a>
-            <a href="#kodex" id="nav-kodex">Kodex</a>
-            <a href="#social" id="nav-social">Social Media</a>
-            <a href="#bewerbung" id="nav-bewerbung">Bewerbung</a>
+        <!-- Hamburger Icon für Handys -->
+        <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menü öffnen">☰</button>
+
+        <nav id="navMenu">
+            <a href="#home" id="nav-home" onclick="closeMobileMenu()">Start</a>
+            <a href="#stats" id="nav-stats" onclick="closeMobileMenu()">Zahlen</a>
+            <a href="#equipment" id="nav-equip" onclick="closeMobileMenu()">Kamera-Gear</a>
+            <a href="#galerie" id="nav-galerie" onclick="closeMobileMenu()">Galerie</a>
+            <a href="#messen" id="nav-messen" onclick="closeMobileMenu()">Messen</a>
+            <a href="#partner" id="nav-partner" onclick="closeMobileMenu()">Partner</a>
+            <a href="#logbuch" id="nav-logbuch" onclick="closeMobileMenu()">Logbuch</a>
+            <a href="#kodex" id="nav-kodex" onclick="closeMobileMenu()">Kodex</a>
+            <a href="#social" id="nav-social" onclick="closeMobileMenu()">Social Media</a>
+            <a href="#bewerbung" id="nav-bewerbung" onclick="closeMobileMenu()">Bewerbung</a>
         </nav>
 
         <div class="controls-wrapper">
@@ -256,8 +353,12 @@
                 <p id="stat2-desc">Einsätze & Übungen</p>
             </div>
             <div class="stat-card">
-                <span class="stat-number" data-target="10">0</span><span class="plus">+</span>
+                <span class="stat-number" data-target="18">0</span><span class="plus">+</span>
                 <p>📍 Städte besucht</p>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" data-target="1250">0</span><span class="plus"> km</span>
+                <p>🛣️ Für Spotting gefahren</p>
             </div>
             <div class="stat-card">
                 <span class="stat-number" data-target="100">0</span><span class="plus">%</span>
@@ -390,28 +491,29 @@
         </div>
     </section>
 
-    <!-- 🚨 KOMMENTARE / FEEDBACK -->
+    <!-- 🚨 KAMERADEN-LOGBUCH / FEEDBACK MIT EMAIL API -->
     <section id="logbuch" class="feedback-section">
         <div class="card-container" style="max-width: 900px;">
-            <h2 style="text-align: center;">📖 Kommentare </h2>
+            <h2 style="text-align: center;">📖 Kameraden-Logbuch</h2>
             <p class="subtitle" style="text-align: center; margin-bottom: 30px;">
-                
+                Feedback, Dankeschön oder Verbesserungsvorschläge von Einsatzkräften & Besuchern.
             </p>
 
             <div class="logbuch-list"></div>
 
-            <form class="logbuch-form" onsubmit="addLogEntry(event)">
+            <!-- Formspree Mail API Integration -->
+            <form id="logbuchForm" class="logbuch-form" onsubmit="addLogEntry(event)">
                 <h3>Eintrag hinterlassen</h3>
                 <div class="input-group">
-                    <input type="text" id="logName" placeholder="Dein Name / Organisation (z. B.Rainer  Winkler)" required>
-                    <select id="logType" class="log-select">
+                    <input type="text" id="logName" name="name" placeholder="Dein Name / Organisation (z. B. FFW Gotha)" required>
+                    <select id="logType" name="typ" class="log-select">
                         <option value="Dankeschön">❤️ Dankeschön</option>
                         <option value="Verbesserung">💡 Verbesserungsvorschlag</option>
                         <option value="Allgemein">💬 Allgemein</option>
                     </select>
                 </div>
-                <textarea id="logText" rows="3" placeholder="Dein Feedback oder deine Nachricht an rescuepix..." required></textarea>
-                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Eintrag absenden</button>
+                <textarea id="logText" name="nachricht" rows="3" placeholder="Dein Feedback oder deine Nachricht an rescuepix..." required></textarea>
+                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Eintrag absenden & per E-Mail senden</button>
             </form>
         </div>
     </section>
@@ -431,11 +533,11 @@
                 </div>
                 <div class="kodex-item">
                     <h4>🔒 Schutz der Persönlichkeit</h4>
-                    <p> Gesichter Betroffener, Verletzungen sowie Einsatznummern werden konsequent unkenntlich gemacht.</p>
+                    <p>Kennzeichen, Gesichter Betroffener, Verletzungen sowie Einsatznummern werden konsequent unkenntlich gemacht.</p>
                 </div>
                 <div class="kodex-item">
-                    <h4>🤝 Transparenz </h4>
-                    <p>Volle Transparenz.</p>
+                    <h4>🤝 Transparenz & Absprache</h4>
+                    <p>Enge Abstimmung mit den Pressesprechern, Einsatzleitungen und Rettungsdiensten vor Ort in Thüringen.</p>
                 </div>
             </div>
         </div>
@@ -487,11 +589,11 @@
                 </div>
                 <div class="bg-option" onclick="changeBg('fire')">
                     <div class="bg-preview bg-f"></div>
-                    <span>Rot</span>
+                    <span>Feuerwehr-Einsatz</span>
                 </div>
                 <div class="bg-option" onclick="changeBg('police')">
                     <div class="bg-preview bg-p"></div>
-                    <span>Hell Blau</span>
+                    <span>Polizei-Nacht</span>
                 </div>
                 <div class="bg-option" onclick="changeBg('custom')">
                     <div class="bg-preview bg-c">📁</div>
@@ -510,7 +612,61 @@
     <!-- INTERAKTIVE SKRIPTE -->
     <script>
         /* ==================================================
-           1. ERFOLGE / ACHIEVEMENTS SYSTEM
+           0. MOBILE MENÜ TOGGLE
+        ================================================== */
+        function toggleMobileMenu() {
+            document.getElementById('navMenu').classList.toggle('mobile-active');
+        }
+        function closeMobileMenu() {
+            document.getElementById('navMenu').classList.remove('mobile-active');
+        }
+
+        /* ==================================================
+           1. LOGBUCH VIA FORM SPREE EMAIL API SENDEN
+        ================================================== */
+        async function addLogEntry(e) {
+            e.preventDefault();
+            const name = document.getElementById('logName').value;
+            const type = document.getElementById('logType').value;
+            const text = document.getElementById('logText').value;
+
+            // Einträge lokal auf der Website anzeigen
+            const list = document.querySelector('.logbuch-list');
+            const newEntry = document.createElement('div');
+            newEntry.className = 'log-entry';
+            newEntry.style.borderLeftColor = '#00d2ff';
+            
+            newEntry.innerHTML = `
+                <div class="log-header">
+                    <span class="log-badge">${type} - ${name}</span>
+                    <span class="log-date">Gerade eben</span>
+                </div>
+                <p class="log-text">„${text}“</p>
+            `;
+            list.prepend(newEntry);
+
+            // Per API an deine E-Mail senden
+            try {
+                await fetch('https://formspree.io/f/xjgnnvwn', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        Formular: "Kameraden-Logbuch Eintrag",
+                        Name: name,
+                        Kategorie: type,
+                        Nachricht: text
+                    })
+                });
+                alert('Vielen Dank! Dein Eintrag wurde im Logbuch veröffentlicht und per E-Mail an rescuepix gesendet.');
+            } catch (err) {
+                alert('Eintrag im Logbuch gepostet!');
+            }
+
+            e.target.reset();
+        }
+
+        /* ==================================================
+           2. ERFOLGE / ACHIEVEMENTS SYSTEM
         ================================================== */
         const unlockedAchievements = new Set();
 
@@ -529,9 +685,7 @@
                 confetti({ particleCount: 80, spread: 70, origin: { y: 0.8 } });
             }
 
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 5000);
+            setTimeout(() => { toast.classList.remove('show'); }, 5000);
         }
 
         function checkNightShift() {
@@ -567,7 +721,7 @@
         });
 
         /* ==================================================
-           2. KONAMI CODE (↑↑↓↓←→←→BA)
+           3. KONAMI CODE (↑↑↓↓←→←→BA)
         ================================================== */
         const konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
         let konamiIndex = 0;
@@ -586,7 +740,7 @@
         });
 
         /* ==================================================
-           3. FEUERWEHRMANN WISCHER & HYDRANT WATER SPLASH
+           4. FEUERWEHRMANN WISCHER & HYDRANT WATER SPLASH
         ================================================== */
         function triggerScreenWipe() {
             const wiper = document.getElementById('screenWiper');
@@ -604,7 +758,7 @@
         }
 
         /* ==================================================
-           4. STANDARD FUNKTIONEN & INITIALISIERUNG
+           5. STANDARD FUNKTIONEN & INITIALISIERUNG
         ================================================== */
         const i18n = {
             de: {
@@ -711,30 +865,6 @@
         }
 
         function toggleQRCode() { document.getElementById('qrCodeContainer').classList.toggle('hidden'); }
-
-        function addLogEntry(e) {
-            e.preventDefault();
-            const name = document.getElementById('logName').value;
-            const type = document.getElementById('logType').value;
-            const text = document.getElementById('logText').value;
-
-            const list = document.querySelector('.logbuch-list');
-            const newEntry = document.createElement('div');
-            newEntry.className = 'log-entry';
-            newEntry.style.borderLeftColor = '#00d2ff';
-            
-            newEntry.innerHTML = `
-                <div class="log-header">
-                    <span class="log-badge">${type} - ${name}</span>
-                    <span class="log-date">Heute</span>
-                </div>
-                <p class="log-text">„${text}“</p>
-            `;
-
-            list.prepend(newEntry);
-            e.target.reset();
-            alert('Vielen Dank für dein Feedback im Kameraden-Logbuch!');
-        }
 
         function toggleBackgroundSelector() { document.getElementById('bgModal').classList.toggle('hidden'); }
         function changeBg(type) {
