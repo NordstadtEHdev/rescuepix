@@ -4,65 +4,305 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>rescuepix | BOS Blaulichtfotografie Thüringen</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0088ff">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Share+Tech+Mono&family=Press+Start+2P&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
     
     <!-- Konfetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
     <style>
         /* ==================================================
-           SMOOTH GLOBALS & TRANSITIONS
+           RESET & DESIGN SYSTEM
         ================================================== */
+        :root {
+            --bg-color: #0a0f1d;
+            --card-bg: #0f172a;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #00d2ff;
+            --primary-hover: #00a3cc;
+            --accent-red: #ef4444;
+            --accent-blue: #0066ff;
+            --border-color: rgba(0, 210, 255, 0.2);
+            --radius: 16px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         html {
             scroll-behavior: smooth;
         }
 
         body {
-            transition: background-color 0.4s ease, color 0.4s ease;
-        }
-
-        /* Sanfte Animationen für interaktive Elemente */
-        a, button, .stat-card, .equip-card, .countdown-card, .partner-card, .kodex-item {
-            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
-                        box-shadow 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
-                        background-color 0.3s ease, 
-                        border-color 0.3s ease;
-        }
-
-        .stat-card:hover, .equip-card:hover, .countdown-card:hover, .partner-card:hover, .kodex-item:hover {
-            transform: translateY(-4px);
-        }
-
-        .control-btn:hover, .btn:hover {
-            transform: translateY(-2px) scale(1.03);
-        }
-
-        .control-btn:active, .btn:active {
-            transform: translateY(0) scale(0.97);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease, filter 0.5s ease;
         }
 
         /* ==================================================
-           RESPONSIVE & MOBILE STYLES
+           ZUFALLS-THEMEN FÜR /404secret
         ================================================== */
+        body.mode-pixel {
+            font-family: 'Press Start 2P', monospace !important;
+            image-rendering: pixelated;
+        }
+        body.mode-pixel h1, body.mode-pixel h2, body.mode-pixel h3, body.mode-pixel p, body.mode-pixel a {
+            font-family: 'Press Start 2P', monospace !important;
+        }
+
+        body.mode-minecraft {
+            background-color: #5c4033 !important;
+            color: #55ff55 !important;
+            font-family: monospace !important;
+        }
+        body.mode-minecraft .card-container, body.mode-minecraft header, body.mode-minecraft .stat-card, body.mode-minecraft .equip-card {
+            background: #2c1d11 !important;
+            border: 4px solid #3c2415 !important;
+            box-shadow: 8px 8px 0px #000 !important;
+            color: #fff !important;
+        }
+
+        body.mode-comic {
+            font-family: 'Comic Neue', 'Comic Sans MS', cursive !important;
+            background: #fffbcf !important;
+            color: #000 !important;
+        }
+        body.mode-comic .card-container, body.mode-comic .stat-card, body.mode-comic .equip-card {
+            border: 3px solid #000 !important;
+            box-shadow: 6px 6px 0px #000 !important;
+            background: #fff !important;
+            color: #000 !important;
+        }
+
+        body.mode-win95 {
+            background-color: #008080 !important;
+            font-family: 'Tahoma', 'Segoe UI', sans-serif !important;
+            color: #000 !important;
+        }
+        body.mode-win95 .card-container, body.mode-win95 header, body.mode-win95 .stat-card, body.mode-win95 .equip-card {
+            background: #c0c0c0 !important;
+            color: #000 !important;
+            border-top: 2px solid #fff !important;
+            border-left: 2px solid #fff !important;
+            border-right: 2px solid #000 !important;
+            border-bottom: 2px solid #000 !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+        }
+
+        body.mode-bw {
+            filter: grayscale(100%) contrast(120%);
+        }
+
+        /* ==================================================
+           LADESCREEN & OVERLAYS
+        ================================================== */
+        .loading-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #0a0f1d;
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .beacon-loader { display: flex; gap: 15px; align-items: center; justify-content: center; }
+        .beacon-light { width: 25px; height: 25px; border-radius: 50%; background: #0066ff; }
+        .beacon-light.left { animation: germanBeaconLeft 0.4s infinite alternate ease-in-out; }
+        .beacon-light.right { animation: germanBeaconRight 0.4s infinite alternate ease-in-out; }
+
+        @keyframes germanBeaconLeft {
+            0% { opacity: 0.2; transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1.25); box-shadow: 0 0 30px #0066ff; }
+        }
+        @keyframes germanBeaconRight {
+            0% { opacity: 1; transform: scale(1.25); box-shadow: 0 0 30px #0066ff; }
+            100% { opacity: 0.2; transform: scale(0.9); }
+        }
+
+        .beacon-storm-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 99999; opacity: 0; transition: opacity 0.2s ease;
+        }
+        .beacon-storm-overlay.active {
+            opacity: 1; animation: germanBlueStrobeStorm 0.25s infinite;
+        }
+        @keyframes germanBlueStrobeStorm {
+            0% { background: rgba(0, 102, 255, 0.5); box-shadow: inset 0 0 120px rgba(0, 102, 255, 0.8); }
+            20% { background: rgba(0, 0, 0, 0.1); box-shadow: none; }
+            40% { background: rgba(0, 150, 255, 0.7); box-shadow: inset 0 0 150px rgba(0, 150, 255, 1); }
+            60%, 100% { background: rgba(0, 0, 0, 0.2); box-shadow: none; }
+        }
+
+        /* ==================================================
+           SECRET INTERAKTIONEN (Winken & Tornado)
+        ================================================== */
+        #idleFireman {
+            position: fixed;
+            bottom: -100px;
+            left: 20px;
+            font-size: 4rem;
+            z-index: 100000;
+            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+        #idleFireman.show {
+            bottom: 20px;
+            animation: waveArm 1s infinite alternate ease-in-out;
+        }
+        @keyframes waveArm {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(15deg); }
+        }
+
+        .tornado-particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 1.5rem;
+            z-index: 999999;
+            animation: tornadoSpin 0.8s linear forwards;
+        }
+        @keyframes tornadoSpin {
+            0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)) rotate(720deg) scale(0); opacity: 0; }
+        }
+
+        .easter-egg-truck {
+            position: fixed;
+            bottom: 10px;
+            left: -150px;
+            font-size: 3rem;
+            z-index: 99999;
+            pointer-events: none;
+            transition: left 3s linear;
+        }
+        .easter-egg-truck.drive-across {
+            left: 110vw;
+        }
+
+        /* ==================================================
+           SPIELE-MODALS (Snake & Flappy RTW)
+        ================================================== */
+        .game-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 200000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+        .game-modal.hidden { display: none !important; }
+        canvas.game-canvas {
+            border: 3px solid #00d2ff;
+            background: #000;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+            max-width: 95vw;
+            max-height: 70vh;
+            border-radius: 8px;
+        }
+
+        /* ==================================================
+           HEADER & TICKER
+        ================================================== */
+        .ticker-bar {
+            background: #ef4444;
+            color: #fff;
+            padding: 6px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .ticker-content {
+            display: inline-block;
+            animation: marquee 25s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .top-truck-bar {
+            background: #0f172a;
+            height: 40px;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .ladder-truck-container {
+            position: absolute;
+            left: -100px;
+            top: 3px;
+            animation: driveTruck 18s linear infinite;
+        }
+        @keyframes driveTruck {
+            0% { left: -100px; }
+            100% { left: 100vw; }
+        }
+        .truck-beacon { animation: beaconFlash 0.3s infinite alternate; }
+        @keyframes beaconFlash { 0% { fill: #0066ff; opacity: 0.3; } 100% { fill: #00d2ff; opacity: 1; } }
+
         header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 20px;
+            padding: 12px 30px;
             position: sticky;
             top: 0;
             z-index: 1000;
             background: rgba(15, 23, 42, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            transition: background 0.3s ease;
+            border-bottom: 1px solid var(--border-color);
         }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #fff;
+            user-select: none;
+        }
+        .beacon-i {
+            color: var(--primary);
+            position: relative;
+        }
+        .beacon-i::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        nav { display: flex; gap: 15px; align-items: center; }
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        nav a:hover { color: var(--primary); }
 
         .hamburger {
             display: none;
@@ -71,227 +311,207 @@
             color: #fff;
             font-size: 1.8rem;
             cursor: pointer;
-            padding: 5px;
-            transition: transform 0.2s ease;
         }
 
-        @media (max-width: 900px) {
-            .hamburger {
-                display: block;
-            }
+        /* Controls & Buttons */
+        .control-btn, .btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+        .control-btn:hover, .btn:hover {
+            background: rgba(0, 210, 255, 0.15);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #0a0f1d;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            color: #0a0f1d;
+        }
 
+        /* ==================================================
+           SECTIONS & CARDS
+        ================================================== */
+        section { padding: 60px 20px; }
+        
+        .hero {
+            text-align: center;
+            padding: 90px 20px 60px 20px;
+        }
+        .hero-badge {
+            display: inline-block;
+            background: rgba(0, 210, 255, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--border-color);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .hero h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 15px; }
+        .hero p { color: var(--text-muted); max-width: 600px; margin: 0 auto 30px auto; font-size: 1.1rem; }
+
+        .card-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .subtitle { color: var(--text-muted); font-size: 0.95rem; }
+
+        .stat-card, .equip-card, .countdown-card, .partner-card, .kodex-item {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .stat-card:hover, .equip-card:hover, .countdown-card:hover, .partner-card:hover, .kodex-item:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .stat-number { font-size: 2.2rem; font-weight: 800; color: var(--primary); }
+        .plus { font-size: 1.5rem; color: var(--primary); font-weight: 800; }
+
+        .equip-badge {
+            display: inline-block;
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin: 8px 0 12px 0;
+        }
+        .equip-badge.mobile { background: rgba(0, 210, 255, 0.15); color: var(--primary); }
+        .equip-card ul { list-style: none; font-size: 0.88rem; color: var(--text-muted); }
+        .equip-card ul li { margin-bottom: 6px; }
+
+        .countdown-card h3 { margin: 8px 0; font-size: 1.2rem; }
+        .event-date { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; }
+        .timer { font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; color: var(--primary); background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; text-align: center; }
+
+        .badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; font-weight: 700; }
+        .fire-badge { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .ambu-badge { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .inter-badge { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+
+        .partner-logo-img { max-width: 180px; max-height: 120px; object-fit: contain; margin-bottom: 15px; }
+
+        .achievement-toast {
+            position: fixed; bottom: -100px; right: 20px;
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px);
+            border: 2px solid #00d2ff; border-radius: 12px; padding: 15px 20px;
+            display: flex; align-items: center; gap: 15px; z-index: 100000;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); color: #fff;
+        }
+        .achievement-toast.show { bottom: 20px; }
+
+        .contact-form input, .contact-form textarea, .logbuch-form input, .logbuch-form textarea, .logbuch-form select {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+        .contact-form input:focus, .contact-form textarea:focus, .logbuch-form input:focus, .logbuch-form textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .bg-modal { transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .bg-modal.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        /* ==================================================
+           RESPONSIVE DESIGN (MOBIL-OPTIMIERT)
+        ================================================== */
+        @media (max-width: 900px) {
+            .hamburger { display: block; }
             nav {
                 display: flex;
                 flex-direction: column;
                 position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
+                top: 100%; left: 0; width: 100%;
                 background: rgba(15, 23, 42, 0.95);
                 backdrop-filter: blur(16px);
-                padding: 0;
-                max-height: 0;
-                overflow: hidden;
-                opacity: 0;
-                transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
-                            opacity 0.3s ease, 
-                            padding 0.3s ease;
-                border-bottom: 2px solid var(--border-color, #00d2ff);
-                box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+                padding: 0; max-height: 0; overflow: hidden; opacity: 0;
+                transition: max-height 0.4s ease, opacity 0.3s ease;
+                border-bottom: 2px solid var(--primary);
             }
-
-            nav.mobile-active {
-                max-height: 500px;
-                opacity: 1;
-                padding: 15px 0;
-            }
-
-            nav a {
-                padding: 12px 25px;
-                width: 100%;
-                text-align: left;
-                font-size: 1.1rem;
-            }
-
-            .controls-wrapper {
-                gap: 8px;
-            }
-            
-            .control-btn {
-                padding: 6px 10px;
-                font-size: 0.9rem;
-            }
-
-            .equip-grid, 
-            .countdown-grid, 
-            .partner-grid, 
-            .kodex-grid,
-            .stats-grid {
-                grid-template-columns: 1fr !important;
-                gap: 15px !important;
-            }
-
-            #driveGalleryContainer iframe {
-                height: 450px !important;
-            }
-
-            .hero h1 {
-                font-size: 2.5rem !important;
-            }
-
-            .input-group {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-
-        /* ==================================================
-           DEUTSCHES BLAULICHT DOPPELBLITZ (🚨)
-        ================================================== */
-        .beacon-storm-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            pointer-events: none;
-            z-index: 99999;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-        .beacon-storm-overlay.active {
-            opacity: 1;
-            animation: germanBlueStrobeStorm 0.25s infinite;
-        }
-
-        @keyframes germanBlueStrobeStorm {
-            0% {
-                background: rgba(0, 102, 255, 0.5);
-                box-shadow: inset 0 0 120px rgba(0, 102, 255, 0.8);
-            }
-            20% { background: rgba(0, 0, 0, 0.1); box-shadow: none; }
-            40% {
-                background: rgba(0, 150, 255, 0.7);
-                box-shadow: inset 0 0 150px rgba(0, 150, 255, 1);
-            }
-            60%, 100% { background: rgba(0, 0, 0, 0.2); box-shadow: none; }
-        }
-
-        .beacon-loader {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            justify-content: center;
-        }
-        .beacon-light {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            background: #0066ff;
-        }
-        .beacon-light.left { animation: germanBeaconLeft 0.4s infinite alternate ease-in-out; }
-        .beacon-light.right { animation: germanBeaconRight 0.4s infinite alternate ease-in-out; }
-
-        @keyframes germanBeaconLeft {
-            0% { opacity: 0.2; transform: scale(0.9); box-shadow: none; }
-            100% { opacity: 1; transform: scale(1.25); box-shadow: 0 0 30px #0066ff, 0 0 50px #00b7ff; }
-        }
-        @keyframes germanBeaconRight {
-            0% { opacity: 1; transform: scale(1.25); box-shadow: 0 0 30px #0066ff, 0 0 50px #00b7ff; }
-            100% { opacity: 0.2; transform: scale(0.9); box-shadow: none; }
-        }
-
-        /* ACHIEVEMENT POPUP */
-        .achievement-toast {
-            position: fixed;
-            bottom: -100px;
-            right: 20px;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
-            border: 2px solid #00d2ff;
-            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.3);
-            border-radius: 12px;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            z-index: 100000;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            color: #fff;
-            max-width: 90vw;
-        }
-        .achievement-toast.show { bottom: 20px; }
-        .achievement-icon { font-size: 2.2rem; }
-        .achievement-title {
-            font-weight: bold;
-            color: #00d2ff;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .achievement-desc { font-size: 0.95rem; margin-top: 2px; }
-
-        .waschtag-banner {
-            background: linear-gradient(90deg, #0284c7, #06b6d4);
-            color: white;
-            text-align: center;
-            padding: 8px;
-            font-weight: bold;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            animation: fadeInDown 0.5s ease-out;
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .partner-logo-img {
-            max-width: 180px;
-            max-height: 120px;
-            object-fit: contain;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            transition: transform 0.3s ease;
-        }
-        .partner-card:hover .partner-logo-img {
-            transform: scale(1.05);
-        }
-
-        .bg-modal {
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        .bg-modal.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
+            nav.mobile-active { max-height: 500px; opacity: 1; padding: 15px 0; }
+            nav a { padding: 12px 25px; width: 100%; text-align: left; }
+            .equip-grid, .countdown-grid, .partner-grid, .kodex-grid, .stats-grid { grid-template-columns: 1fr !important; }
+            #driveGalleryContainer iframe { height: 450px !important; }
+            .hero h1 { font-size: 2.5rem !important; }
         }
     </style>
 </head>
 <body class="dark-mode">
 
-    <!-- WASCHTAG BANNER CONTAINER -->
-    <div id="waschtagContainer"></div>
-
-    <!-- 🚨 DEUTSCHES BLAULICHT LADESCREEN -->
+    <!-- 🚨 LADESCREEN -->
     <div id="loadingScreen" class="loading-screen" style="transition: opacity 0.5s ease, visibility 0.5s ease;">
         <div class="beacon-loader">
             <div class="beacon-light left"></div>
             <div class="beacon-light right"></div>
         </div>
-        <p style="margin-top: 15px;">rescuepix wird geladen...</p>
+        <p style="margin-top: 15px; font-weight: 600;">rescuepix wird geladen...</p>
     </div>
 
-    <!-- 🚒 EASTER EGG FEUERWEHR AUTO -->
+    <!-- 🚒 EASTER EGG FEUERWEHR AUTO & WINKENDER FEUERWEHRMANN -->
     <div id="easterEggTruck" class="easter-egg-truck">🚒💨</div>
+    <div id="idleFireman">👨‍🚒👋</div>
 
     <!-- Overlays -->
     <div id="beaconStormOverlay" class="beacon-storm-overlay"></div>
 
     <!-- Achievement Toast Popup -->
     <div id="achievementToast" class="achievement-toast">
-        <div class="achievement-icon" id="achieveIcon">🏆</div>
+        <div class="achievement-icon" id="achieveIcon" style="font-size: 1.8rem;">🏆</div>
         <div>
-            <div class="achievement-title">GEHEIMER ERFOLG FREIGESCHALTET!</div>
-            <div class="achievement-desc" id="achieveDesc">Erfolg freigeschaltet!</div>
+            <div class="achievement-title" style="font-weight:bold; color:#00d2ff; font-size:0.85rem;">GEHEIMER ERFOLG FREIGESCHALTET!</div>
+            <div class="achievement-desc" id="achieveDesc" style="font-size:0.95rem;">Erfolg freigeschaltet!</div>
+        </div>
+    </div>
+
+    <!-- 🕹️ FEUERWEHR-SNAKE MODAL (/404secret) -->
+    <div id="snakeModal" class="game-modal hidden">
+        <h2 style="margin-bottom: 10px; color: #00d2ff;">🚒 Feuerwehr-Snake (Geheim-Spiel)</h2>
+        <p style="margin-bottom: 15px; font-size: 0.9rem;">Steuerung mit Pfeiltasten. Lösche die Feuer (🔥)!</p>
+        <canvas id="snakeCanvas" class="game-canvas" width="400" height="400"></canvas>
+        <div style="margin-top: 15px; display:flex; gap:10px;">
+            <button class="btn btn-primary" onclick="startSnakeGame()">Neu starten</button>
+            <button class="btn" onclick="closeSnakeGame()">Schließen</button>
+        </div>
+    </div>
+
+    <!-- 🚑 FLAPPY RTW MODAL ("rtw" Tippen) -->
+    <div id="flappyModal" class="game-modal hidden">
+        <h2 style="margin-bottom: 10px; color: #ef4444;">🚑 Flappy RTW</h2>
+        <p style="margin-bottom: 15px; font-size: 0.9rem;">Drücke [LEERTASTE] oder KLICKE zum Fliegen! Weiche den Absperrungen aus.</p>
+        <canvas id="flappyCanvas" class="game-canvas" width="360" height="480"></canvas>
+        <div style="margin-top: 15px; display:flex; gap:10px;">
+            <button class="btn btn-primary" onclick="startFlappyGame()">Neu starten</button>
+            <button class="btn" onclick="closeFlappyGame()">Schließen</button>
         </div>
     </div>
 
@@ -326,12 +546,10 @@
         </div>
     </div>
 
-    <!-- Header Navigation mit Mobile-Support -->
+    <!-- Header Navigation -->
     <header>
         <div class="logo" onclick="countLogoClicks()" style="cursor: pointer;">rescuep<span class="beacon-i">i</span>x</div>
-
         <button class="hamburger" onclick="toggleMobileMenu()" aria-label="Menü öffnen">☰</button>
-
         <nav id="navMenu">
             <a href="#home" id="nav-home" onclick="closeMobileMenu()">Start</a>
             <a href="#stats" id="nav-stats" onclick="closeMobileMenu()">Zahlen</a>
@@ -345,15 +563,9 @@
             <a href="#bewerbung" id="nav-bewerbung" onclick="closeMobileMenu()">Bewerbung</a>
         </nav>
 
-        <div class="controls-wrapper">
+        <div class="controls-wrapper" style="display:flex; gap:8px;">
             <button class="control-btn storm-btn" onclick="triggerBeaconStorm()" title="Blaulicht-Gewitter auslösen!">🚨</button>
-            <button id="themeToggleBtn" class="control-btn" onclick="toggleTheme()" title="Design wechseln">🌙</button>
             <button class="control-btn" onclick="toggleBackgroundSelector()" title="Hintergrundbild ändern">🖼️</button>
-
-            <div class="lang-switcher">
-                <button class="lang-btn active" onclick="setLanguage('de', event)">🇩🇪</button>
-                <button class="lang-btn" onclick="setLanguage('en', event)">🇬🇧</button>
-            </div>
         </div>
     </header>
 
@@ -369,41 +581,23 @@
 
     <!-- Statistik Section -->
     <section id="stats" class="stats-section">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <span class="stat-number" data-target="2000">0</span><span class="plus">+</span>
-                <p id="stat1-desc">Fotos geschossen</p>
-            </div>
-            <div class="stat-card">
-                <span class="stat-number" data-target="5">0</span><span class="plus">+</span>
-                <p id="stat2-desc">Einsätze & Übungen</p>
-            </div>
-            <div class="stat-card">
-                <span class="stat-number" data-target="18">0</span><span class="plus">+</span>
-                <p>📍 Städte besucht</p>
-            </div>
-            <div class="stat-card">
-                <span class="stat-number" data-target="1250">0</span><span class="plus"> km</span>
-                <p>🛣️ Für Spotting gefahren</p>
-            </div>
-            <div class="stat-card">
-                <span class="stat-number" data-target="100">0</span><span class="plus">%</span>
-                <p id="stat3-desc">Leidenschaft & BOS</p>
-            </div>
+        <div class="stats-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:20px;">
+            <div class="stat-card"><span class="stat-number">2000</span><span class="plus">+</span><p id="stat1-desc">Fotos geschossen</p></div>
+            <div class="stat-card"><span class="stat-number">5</span><span class="plus">+</span><p id="stat2-desc">Einsätze & Übungen</p></div>
+            <div class="stat-card"><span class="stat-number">18</span><span class="plus">+</span><p>📍 Städte besucht</p></div>
+            <div class="stat-card"><span class="stat-number">1250</span><span class="plus"> km</span><p>🛣️ Für Spotting gefahren</p></div>
+            <div class="stat-card"><span class="stat-number">100</span><span class="plus">%</span><p id="stat3-desc">Leidenschaft & BOS</p></div>
         </div>
     </section>
 
     <!-- 📷 KAMERA EQUIPMENT -->
     <section id="equipment">
-        <div class="card-container" style="max-width: 1000px;">
+        <div class="card-container" style="max-width: 1000px; margin: 0 auto;">
             <h2 id="equip-title" style="text-align: center; margin-bottom: 10px;">📷 Kamera-Equipment & Technik</h2>
-            <p id="equip-sub" class="subtitle" style="text-align: center; margin-bottom: 30px;">
-                Einsatzdokumentation erfordert verlässliches Werkzeug bei Tag und Nacht.
-            </p>
-
-            <div class="equip-grid">
+            <p id="equip-sub" class="subtitle" style="text-align: center; margin-bottom: 30px;">Einsatzdokumentation erfordert verlässliches Werkzeug bei Tag und Nacht.</p>
+            <div class="equip-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
                 <div class="equip-card">
-                    <div class="equip-icon">📷</div>
+                    <div class="equip-icon" style="font-size:2rem;">📷</div>
                     <h3>Canon EOS 500D</h3>
                     <span class="equip-badge">Hauptkamera (DSLR)</span>
                     <ul>
@@ -412,16 +606,15 @@
                         <li><strong>Einsatzgebiet:</strong> Tele-Aufnahmen auf Distanz & Details</li>
                     </ul>
                 </div>
-
                 <div class="equip-card">
-                    <div class="equip-icon">📱</div>
+                    <div class="equip-icon" style="font-size:2rem;">📱</div>
                     <h3>iPhone 14 Pro & DJI OM 5</h3>
                     <span class="equip-badge mobile">Mobile Cam & Stabilisierung</span>
                     <ul>
                         <li><strong>Sensor:</strong> 48 MP Hauptkamera & 4K HDR</li>
-                        <li><strong>Gimbal:</strong> DJI OM 5 (3-Achsen-Stabilisierung & Verlängerung)</li>
-                        <li><strong>Features:</strong> Seidenweiche Kamerafahrten, Nachtmodus & ProRAW</li>
-                        <li><strong>Einsatzgebiet:</strong> Dynamic Shots, Lagedokumentation & Socials</li>
+                        <li><strong>Gimbal:</strong> DJI OM 5 (3-Achsen-Stabilisierung)</li>
+                        <li><strong>Features:</strong> Seidenweiche Kamerafahrten & Nachtmodus</li>
+                        <li><strong>Einsatzgebiet:</strong> Dynamic Shots & Socials</li>
                     </ul>
                 </div>
             </div>
@@ -430,24 +623,19 @@
 
     <!-- ☁️ GOOGLE DRIVE GALERIE -->
     <section id="galerie" class="gallery-section">
-        <div class="card-container" style="max-width: 1100px;">
+        <div class="card-container" style="max-width: 1100px; margin: 0 auto;">
             <h2 id="gallery-title" style="text-align: center;">Einsatzgalerie</h2>
-            <p class="subtitle" id="gallery-sub" style="text-align: center; margin-bottom: 30px;">
-                Alle Fotos werden direkt live aus unserem Google Cloud Ordner geladen.
-            </p>
-            
-            <div id="driveGalleryContainer" style="width: 100%; margin: 0 auto;" onclick="registerImageClick()">
+            <p class="subtitle" id="gallery-sub" style="text-align: center; margin-bottom: 30px;">Alle Fotos werden direkt live aus unserem Google Cloud Ordner geladen.</p>
+            <div id="driveGalleryContainer">
                 <iframe src="https://drive.google.com/embeddedfolderview?id=1l8gVL3V03ByySeC6OptBHeako4YqV4N2#grid" 
                         style="width:100%; height:700px; border:1px solid var(--border-color); border-radius:14px; background: rgba(0,0,0,0.2);" 
                         allowfullscreen>
                 </iframe>
             </div>
-
             <div style="text-align: center; margin-top: 25px;">
-                <button class="btn social-btn" onclick="toggleQRCode()">📲 Seite per QR-Code teilen</button>
-                <div id="qrCodeContainer" class="qr-container hidden" style="transition: all 0.3s ease;">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://rescuepix.vercel.app" alt="QR Code" style="margin-top: 15px; border-radius: 8px;">
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Scannen zum Aufrufen auf dem Smartphone</p>
+                <button class="btn" onclick="toggleQRCode()">📲 Seite per QR-Code teilen</button>
+                <div id="qrCodeContainer" class="qr-container hidden" style="margin-top: 15px;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://rescuepix.vercel.app" alt="QR Code" style="border-radius: 8px;">
                 </div>
             </div>
         </div>
@@ -455,47 +643,27 @@
 
     <!-- ⏱️ MESSE COUNTDOWN SECTION -->
     <section id="messen" class="messen-section">
-        <div class="card-container" style="max-width: 1000px;">
+        <div class="card-container" style="max-width: 1000px; margin: 0 auto;">
             <h2 style="text-align: center;">🚨 BOS Messe-Countdowns</h2>
-            <p class="subtitle" style="text-align: center; margin-bottom: 30px;">
-                Die nächsten großen Treffpunkte für Feuerwehr, Rettungsdienst & Katastrophenschutz!
-            </p>
-
-            <div class="countdown-grid">
+            <p class="subtitle" style="text-align: center; margin-bottom: 30px;">Die nächsten großen Treffpunkte für Feuerwehr, Rettungsdienst & Katastrophenschutz!</p>
+            <div class="countdown-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:20px;">
                 <div class="countdown-card">
                     <span class="badge fire-badge">🔥 Dresden</span>
                     <h3>FLORIAN 2026</h3>
                     <p class="event-date">08. – 10. Oktober 2026</p>
-                    <div class="timer" id="timerFlorian">
-                        <div><span id="f-days">00</span><label>Tage</label></div>
-                        <div><span id="f-hours">00</span><label>Std</label></div>
-                        <div><span id="f-mins">00</span><label>Min</label></div>
-                        <div><span id="f-secs">00</span><label>Sek</label></div>
-                    </div>
+                    <div class="timer"><span id="f-days">00</span>d <span id="f-hours">00</span>h <span id="f-mins">00</span>m <span id="f-secs">00</span>s</div>
                 </div>
-
                 <div class="countdown-card">
                     <span class="badge ambu-badge">🚑 Fulda</span>
                     <h3>RETTmobil 2027</h3>
                     <p class="event-date">12. – 14. Mai 2027</p>
-                    <div class="timer" id="timerRettmobil">
-                        <div><span id="r-days">00</span><label>Tage</label></div>
-                        <div><span id="r-hours">00</span><label>Std</label></div>
-                        <div><span id="r-mins">00</span><label>Min</label></div>
-                        <div><span id="r-secs">00</span><label>Sek</label></div>
-                    </div>
+                    <div class="timer"><span id="r-days">00</span>d <span id="r-hours">00</span>h <span id="r-mins">00</span>m <span id="r-secs">00</span>s</div>
                 </div>
-
                 <div class="countdown-card">
                     <span class="badge inter-badge">🌍 Hannover</span>
                     <h3>INTERSCHUTZ 2030</h3>
                     <p class="event-date">20. – 25. Mai 2030</p>
-                    <div class="timer" id="timerInterschutz">
-                        <div><span id="i-days">00</span><label>Tage</label></div>
-                        <div><span id="i-hours">00</span><label>Std</label></div>
-                        <div><span id="i-mins">00</span><label>Min</label></div>
-                        <div><span id="i-secs">00</span><label>Sek</label></div>
-                    </div>
+                    <div class="timer"><span id="i-days">00</span>d <span id="i-hours">00</span>h <span id="i-mins">00</span>m <span id="i-secs">00</span>s</div>
                 </div>
             </div>
         </div>
@@ -503,335 +671,344 @@
 
     <!-- 🤝 PARTNER & NETZWERK -->
     <section id="partner" class="partner-section">
-        <div class="card-container" style="max-width: 900px; text-align: center;">
+        <div class="card-container" style="max-width: 900px; margin: 0 auto; text-align: center;">
             <h2>🤝 Partner & Netzwerk</h2>
             <p class="subtitle" style="margin-bottom: 25px;">Starke Zusammenarbeit für starke Öffentlichkeitsarbeit in Thüringen.</p>
-
             <div class="partner-grid">
                 <div class="partner-card">
                     <img src="image_560620.png" alt="BOS Bilder Thüringen Logo" class="partner-logo-img">
                     <h4>BOS Bilder Thüringen</h4>
-                    <p>Gemeinsames Netzwerk für Einsatzfotografie & Berichterstattung</p>
+                    <p style="font-size:0.9rem; color:var(--text-muted);">Gemeinsames Netzwerk für Einsatzfotografie & Berichterstattung</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 💬 KOMMENTARE MIT EMAIL API -->
+    <!-- 💬 KOMMENTARE -->
     <section id="kommentare" class="feedback-section">
-        <div class="card-container" style="max-width: 900px;">
-            <h2 style="text-align: center;">💬 Kommentare</h2>
-            <p class="subtitle" style="text-align: center; margin-bottom: 30px;">
-                Feedback, Dankeschön oder Verbesserungsvorschläge von Einsatzkräften & Besuchern.
-            </p>
-
-            <div class="logbuch-list"></div>
-
-            <form id="logbuchForm" class="logbuch-form" onsubmit="addLogEntry(event)">
+        <div class="card-container" style="max-width: 900px; margin: 0 auto;">
+            <h2 style="text-align: center; margin-bottom: 20px;">💬 Kommentare</h2>
+            <form id="logbuchForm" class="logbuch-form" onsubmit="addLogEntry(event)" style="display:flex; flex-direction:column; gap:10px;">
                 <h3>Kommentar hinterlassen</h3>
-                <div class="input-group">
-                    <input type="text" id="logName" name="name" placeholder="Dein Name / Organisation (z. B. FFW Gotha)" required>
+                <div class="input-group" style="display:flex; gap:10px;">
+                    <input type="text" id="logName" name="name" placeholder="Dein Name / Organisation" required style="flex:1;">
                     <select id="logType" name="typ" class="log-select">
                         <option value="Dankeschön">❤️ Dankeschön</option>
                         <option value="Verbesserung">💡 Verbesserungsvorschlag</option>
                         <option value="Allgemein">💬 Allgemein</option>
                     </select>
                 </div>
-                <textarea id="logText" name="nachricht" rows="3" placeholder="Dein Kommentar oder deine Nachricht an rescuepix..." required></textarea>
-                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Kommentar absenden & per E-Mail senden</button>
+                <textarea id="logText" name="nachricht" rows="3" placeholder="Dein Kommentar..." required style="width:100%;"></textarea>
+                <button type="submit" class="btn btn-primary" style="align-self: flex-start;">Kommentar absenden</button>
             </form>
         </div>
     </section>
 
     <!-- 🛡️ VERHALTENSKODEX -->
     <section id="kodex">
-        <div class="card-container" style="max-width: 900px; border-left: 4px solid var(--glow-blue);">
+        <div class="card-container" style="max-width: 900px; margin: 0 auto; border-left: 4px solid var(--primary);">
             <h2 id="kodex-title">🛡️ Verhaltenskodex & Einsatzethik</h2>
-            <p id="kodex-sub" class="subtitle" style="margin-bottom: 20px;">
-                Respektvoller Umgang an der Einsatzstelle hat oberste Priorität.
-            </p>
-
-            <div class="kodex-grid">
+            <div class="kodex-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:15px; margin-top:15px;">
                 <div class="kodex-item">
                     <h4>🚫 Keine Behinderung</h4>
-                    <p>Einsatzkräfte haben immer Vorrang. Die Aufnahmen entstehen mit ausreichend Sicherheitsabstand (Tele-Objektiv).</p>
+                    <p style="font-size:0.85rem; color:var(--text-muted);">Einsatzkräfte haben immer Vorrang. Aufnahmen entstehen mit Sicherheitsabstand.</p>
                 </div>
                 <div class="kodex-item">
                     <h4>🔒 Schutz der Persönlichkeit</h4>
-                    <p>Kennzeichen, Gesichter Betroffener, Verletzungen sowie Einsatznummern werden konsequent unkenntlich gemacht.</p>
+                    <p style="font-size:0.85rem; color:var(--text-muted);">Kennzeichen & Gesichter werden konsequent unkenntlich gemacht.</p>
                 </div>
                 <div class="kodex-item">
-                    <h4>🤝 Volle Transparenz</h4>
-                    <p>Volle Transparenz.</p>
+                    <h4>🤝 Transparenz</h4>
+                    <p style="font-size:0.85rem; color:var(--text-muted);">Enge Zusammenarbeit und gegenseitiger Respekt mit den Hilfsorganisationen.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Social Media Links -->
+    <!-- Social Media -->
     <section id="social" class="form-section">
-        <div class="card-container" style="max-width: 800px;">
-            <h2 style="text-align: center;">Social Media</h2>
-            <p class="subtitle" id="social-sub" style="text-align: center;">Besuche unsere offiziellen Kanäle:</p>
-
+        <div class="card-container" style="max-width: 800px; margin: 0 auto; text-align: center;">
+            <h2>Social Media</h2>
             <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 20px;">
-                <a href="https://www.instagram.com/rescuepix?igsh=d3AwdmNta2R5Mmtu&utm_source=qr" target="_blank" class="btn social-btn insta" style="flex: 1; min-width: 200px; text-align: center;">
-                    Instagram (@rescuepix)
-                </a>
-                <a href="https://www.tiktok.com/@rescuepix?_r=1&_t=ZG-98Xnu5XyusS" target="_blank" class="btn social-btn tiktok" style="flex: 1; min-width: 200px; text-align: center;">
-                    TikTok (@rescuepix)
-                </a>
+                <a href="https://www.instagram.com/rescuepix?igsh=d3AwdmNta2R5Mmtu&utm_source=qr" target="_blank" class="btn" style="flex: 1; min-width: 200px; background:#e1306c; border:none;">Instagram (@rescuepix)</a>
+                <a href="https://www.tiktok.com/@rescuepix?_r=1&_t=ZG-98Xnu5XyusS" target="_blank" class="btn" style="flex: 1; min-width: 200px; background:#000; border:1px solid #333;">TikTok (@rescuepix)</a>
             </div>
         </div>
     </section>
 
-    <!-- Bewerbungsformular -->
+    <!-- Bewerbung -->
     <section id="bewerbung" class="form-section">
-        <div class="card-container" style="max-width: 800px;">
-            <h2 id="form-title" style="text-align: center;">Bewerbung: BOS Bilder Thüringen</h2>
-            <p class="subtitle" id="form-sub" style="text-align: center;">Du machst selbst Blaulichtfotos in Thüringen? Werde Teil unseres Teams!</p>
-
-            <form action="https://formspree.io/f/xjgnnvwn" method="POST" class="contact-form">
-                <div class="input-group">
-                    <input type="text" name="name" id="field-name" placeholder="Dein Name" required>
-                    <input type="email" name="email" id="field-email" placeholder="Deine E-Mail Adresse" required>
+        <div class="card-container" style="max-width: 800px; margin: 0 auto;">
+            <h2 id="form-title" style="text-align: center; margin-bottom: 20px;">Bewerbung: BOS Bilder Thüringen</h2>
+            <form action="https://formspree.io/f/xjgnnvwn" method="POST" class="contact-form" style="display:flex; flex-direction:column; gap:12px;">
+                <div class="input-group" style="display:flex; gap:10px;">
+                    <input type="text" name="name" placeholder="Dein Name" required style="flex:1;">
+                    <input type="email" name="email" placeholder="Deine E-Mail" required style="flex:1;">
                 </div>
-                <input type="text" name="ort" id="field-ort" placeholder="Dein Landkreis / Ort in Thüringen" required>
-                <textarea name="nachricht" id="field-msg" rows="4" placeholder="Stelle dich kurz vor..." required></textarea>
+                <input type="text" name="ort" placeholder="Dein Landkreis / Ort in Thüringen" required>
+                <textarea name="nachricht" rows="4" placeholder="Stelle dich kurz vor..." required></textarea>
                 <button type="submit" class="btn btn-primary" id="btn-submit">Bewerbung absenden</button>
             </form>
         </div>
     </section>
 
     <!-- 🖼️ HINTERGRUND-AUSWAHL MODAL -->
-    <div id="bgModal" class="bg-modal hidden">
-        <div class="bg-modal-content">
+    <div id="bgModal" class="bg-modal hidden" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.8); z-index:100000; display:flex; align-items:center; justify-content:center;">
+        <div class="bg-modal-content" style="background:#0f172a; padding:25px; border-radius:12px; border:1px solid #00d2ff; text-align:center;">
             <h3>🖼️ Wähle dein Hintergrundbild</h3>
-            <div class="bg-grid">
-                <div class="bg-option" onclick="changeBg('default')">
-                    <div class="bg-preview bg-def"></div>
-                    <span>Standard Dunkel</span>
-                </div>
-                <div class="bg-option" onclick="changeBg('fire')">
-                    <div class="bg-preview bg-f"></div>
-                    <span>Feuerwehr-Einsatz</span>
-                </div>
-                <div class="bg-option" onclick="changeBg('police')">
-                    <div class="bg-preview bg-p"></div>
-                    <span>Polizei-Nacht</span>
-                </div>
-                <div class="bg-option" onclick="changeBg('custom')">
-                    <div class="bg-preview bg-c">📁</div>
-                    <span>Eigenes Bild Upload</span>
-                </div>
+            <div style="display:flex; gap:10px; margin:20px 0;">
+                <button class="btn" onclick="changeBg('default')">Standard Dunkel</button>
+                <button class="btn" onclick="changeBg('fire')">Feuerwehr-Rot</button>
+                <button class="btn" onclick="changeBg('police')">Polizei-Blau</button>
             </div>
-            <input type="file" id="customBgInput" accept="image/*" style="display:none;" onchange="uploadCustomBg(event)">
-            <button class="btn btn-primary" onclick="toggleBackgroundSelector()" style="margin-top:15px;">Schließen</button>
+            <button class="btn btn-primary" onclick="toggleBackgroundSelector()">Schließen</button>
         </div>
     </div>
 
     <footer>
-        <p>&copy; 2026 rescuepix | BOS Blaulichtfotografie Thüringen</p>
+        <p style="text-align:center; padding:30px; color:var(--text-muted); font-size:0.85rem;">&copy; 2026 rescuepix | BOS Blaulichtfotografie Thüringen</p>
     </footer>
 
     <!-- INTERAKTIVE SKRIPTE -->
     <script>
-        function toggleMobileMenu() {
-            document.getElementById('navMenu').classList.toggle('mobile-active');
-        }
-        function closeMobileMenu() {
-            document.getElementById('navMenu').classList.remove('mobile-active');
-        }
+        function toggleMobileMenu() { document.getElementById('navMenu').classList.toggle('mobile-active'); }
+        function closeMobileMenu() { document.getElementById('navMenu').classList.remove('mobile-active'); }
 
-        async function addLogEntry(e) {
-            e.preventDefault();
-            const name = document.getElementById('logName').value;
-            const type = document.getElementById('logType').value;
-            const text = document.getElementById('logText').value;
-
-            const list = document.querySelector('.logbuch-list');
-            const newEntry = document.createElement('div');
-            newEntry.className = 'log-entry';
-            newEntry.style.borderLeftColor = '#00d2ff';
-            newEntry.style.opacity = '0';
-            newEntry.style.transform = 'translateY(-10px)';
-            newEntry.style.transition = 'all 0.4s ease';
+        /* ==================================================
+           GEHEIMER /404secret MODUS & ZUFALLS-DESIGN
+        ================================================== */
+        const isSecretUrl = window.location.pathname.includes('404secret') || window.location.search.includes('404secret');
+        if (isSecretUrl) {
+            const modes = ['mode-pixel', 'mode-minecraft', 'mode-comic', 'mode-win95', 'mode-bw'];
+            const randomMode = modes[Math.floor(Math.random() * modes.length)];
+            document.body.classList.add(randomMode);
             
-            newEntry.innerHTML = `
-                <div class="log-header">
-                    <span class="log-badge">${type} - ${name}</span>
-                    <span class="log-date">Gerade eben</span>
-                </div>
-                <p class="log-text">„${text}“</p>
-            `;
-            list.prepend(newEntry);
-
-            requestAnimationFrame(() => {
-                newEntry.style.opacity = '1';
-                newEntry.style.transform = 'translateY(0)';
-            });
-
-            try {
-                await fetch('https://formspree.io/f/xjgnnvwn', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        Formular: "Kommentar Eintrag",
-                        Name: name,
-                        Kategorie: type,
-                        Nachricht: text
-                    })
-                });
-                alert('Vielen Dank! Dein Kommentar wurde veröffentlicht und per E-Mail gesendet.');
-            } catch (err) {
-                alert('Kommentar veröffentlicht!');
-            }
-
-            e.target.reset();
+            setTimeout(() => {
+                alert('🚨 GEHEIMER MODUS AKTIVIERT (' + randomMode.replace('mode-', '').toUpperCase() + ')!\nFeuerwehr-Snake wurde gestartet!');
+                openSnakeGame();
+            }, 800);
         }
 
-        const unlockedAchievements = new Set();
-
-        function unlockAchievement(icon, title, desc) {
-            const key = title;
-            if (unlockedAchievements.has(key)) return;
-            unlockedAchievements.add(key);
-
-            document.getElementById('achieveIcon').innerText = icon;
-            document.getElementById('achieveDesc').innerText = title + ' – ' + desc;
-            
-            const toast = document.getElementById('achievementToast');
-            toast.classList.add('show');
-
-            if (window.confetti) {
-                confetti({ particleCount: 80, spread: 70, origin: { y: 0.8 } });
-            }
-
-            setTimeout(() => { toast.classList.remove('show'); }, 5000);
+        /* ==================================================
+           MAUS-STILLSTAND (30 Sek -> Feuerwehrmann winkt)
+        ================================================== */
+        let idleTimer;
+        function resetIdleTimer() {
+            document.getElementById('idleFireman').classList.remove('show');
+            clearTimeout(idleTimer);
+            idleTimer = setTimeout(() => {
+                document.getElementById('idleFireman').classList.add('show');
+            }, 30000);
         }
+        document.addEventListener('mousemove', resetIdleTimer);
+        document.addEventListener('keydown', resetIdleTimer);
+        resetIdleTimer();
 
-        function checkNightShift() {
-            const hour = new Date().getHours();
-            if (hour >= 0 && hour < 5) {
-                unlockAchievement('🌙', 'Nachtschicht', 'Website zwischen 0 und 5 Uhr besucht.');
-            }
-        }
+        /* ==================================================
+           MAUS-KREISEN (Mini-Tornado Effekt)
+        ================================================== */
+        let mousePosHistory = [];
+        document.addEventListener('mousemove', (e) => {
+            const now = Date.now();
+            mousePosHistory.push({ x: e.clientX, y: e.clientY, time: now });
+            mousePosHistory = mousePosHistory.filter(p => now - p.time < 800);
 
-        setTimeout(() => {
-            unlockAchievement('☕', 'Kaffeepause', '10 Minuten auf der Seite gewesen.');
-        }, 600000);
-
-        let galleryClicks = 0;
-        function registerImageClick() {
-            galleryClicks += 5;
-            if (galleryClicks >= 100) {
-                unlockAchievement('📷', 'Spotter', '100 Bilder angesehen.');
-            }
-        }
-
-        if (Math.random() <= 0.01) {
-            document.getElementById('waschtagContainer').innerHTML = 
-                '<div class="waschtag-banner">✨ Heute ist Waschtag – alle Fahrzeuge glänzen extra! ✨</div>';
-        }
-
-        let totalClicks = 0;
-        document.addEventListener('click', () => {
-            totalClicks++;
-            if (totalClicks === 100) {
-                alert('Du hast wohl zu viel Freizeit. 😂');
-            }
-        });
-
-        const konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
-        let konamiIndex = 0;
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === konamiCode[konamiIndex].toLowerCase()) {
-                konamiIndex++;
-                if (konamiIndex === konamiCode.length) {
-                    triggerBeaconStorm();
-                    unlockAchievement('🎮', 'Blaulicht-Gewitter', 'Konami-Code erfolgreich eingegeben!');
-                    konamiIndex = 0;
+            if (mousePosHistory.length > 20) {
+                let totalAngle = 0;
+                for (let i = 2; i < mousePosHistory.length; i++) {
+                    const a = Math.atan2(mousePosHistory[i].y - mousePosHistory[i-1].y, mousePosHistory[i].x - mousePosHistory[i-1].x);
+                    const b = Math.atan2(mousePosHistory[i-1].y - mousePosHistory[i-2].y, mousePosHistory[i-1].x - mousePosHistory[i-2].x);
+                    totalAngle += (a - b);
                 }
-            } else {
-                konamiIndex = 0;
+                if (Math.abs(totalAngle) > Math.PI * 4) {
+                    spawnTornado(e.clientX, e.clientY);
+                    mousePosHistory = [];
+                }
             }
         });
 
-        const i18n = {
-            de: {
-                ticker: '+++ <strong>LIVE-TICKER:</strong> Neue Einsatzfotos aus Thüringen online! +++ Bleibt auf dem Laufenden auf Instagram @rescuepix +++ Du machst auch Blaulichtfotos? Jetzt unten bewerben! +++',
-                navHome: 'Start', navStats: 'Zahlen', navEquip: 'Kamera-Gear', navGalerie: 'Galerie', navMessen: 'Messen', navPartner: 'Partner', navKommentare: 'Kommentare', navKodex: 'Kodex', navSocial: 'Social Media', navBewerbung: 'Bewerbung',
-                heroBadge: 'BOS Fotografie Thüringen', heroSub: 'Einsatzkräfte, Dynamik und Emotionen im richtigen Moment festgehalten.', btnGallery: 'Galerie ansehen',
-                stat1Desc: 'Fotos geschossen', stat2Desc: 'Einsätze & Übungen', stat3Desc: 'Leidenschaft & BOS', equipTitle: '📷 Kamera-Equipment & Technik', equipSub: 'Einsatzdokumentation erfordert verlässliches Werkzeug bei Tag und Nacht.',
-                galleryTitle: 'Einsatzgalerie', gallerySub: 'Alle Fotos werden direkt live aus unserem Google Cloud Ordner geladen.', kodexTitle: '🛡️ Verhaltenskodex & Einsatzethik', kodexSub: 'Respektvoller Umgang an der Einsatzstelle hat oberste Priorität.',
-                socialSub: 'Besuche unsere offiziellen Kanäle:', formTitle: 'Bewerbung: BOS Bilder Thüringen', formSub: 'Du machst selbst Blaulichtfotos in Thüringen? Werde Teil unseres Teams!',
-                fieldName: 'Dein Name', fieldEmail: 'Deine E-Mail Adresse', fieldOrt: 'Dein Landkreis / Ort in Thüringen', fieldMsg: 'Stelle dich kurz vor...', btnSubmit: 'Bewerbung absenden'
-            },
-            en: {
-                ticker: '+++ <strong>LIVE TICKER:</strong> New emergency response photos from Thuringia online! +++ Follow us on Instagram @rescuepix +++ Are you an emergency photographer? Apply below! +++',
-                navHome: 'Home', navStats: 'Stats', navEquip: 'Camera Gear', navGalerie: 'Gallery', navMessen: 'Fairs', navPartner: 'Partners', navKommentare: 'Comments', navKodex: 'Code of Ethics', navSocial: 'Social Media', navBewerbung: 'Apply',
-                heroBadge: 'Emergency Photography Thuringia', heroSub: 'Emergency services, action, and emotions captured at the right moment.', btnGallery: 'View Gallery',
-                stat1Desc: 'Photos Taken', stat2Desc: 'Missions & Drills', stat3Desc: 'Passion & Dedication', equipTitle: '📷 Camera Equipment & Gear', equipSub: 'Emergency documentation requires reliable tools day and night.',
-                galleryTitle: 'Action Gallery', gallerySub: 'All photos are loaded directly from our Google Cloud folder.', kodexTitle: '🛡️ Code of Ethics & Privacy', kodexSub: 'Respectful and professional conduct at scenes is our highest priority.',
-                socialSub: 'Visit our official channels:', formTitle: 'Application: Emergency Photography', formSub: 'Do you take emergency responder photos in Thuringia? Join our team!',
-                fieldName: 'Your Name', fieldEmail: 'Your Email Address', fieldOrt: 'Your Region / District in Thuringia', fieldMsg: 'Introduce yourself briefly...', btnSubmit: 'Submit Application'
+        function spawnTornado(x, y) {
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'tornado-particle';
+                particle.innerText = ['🌪️', '💨', '🌀'][Math.floor(Math.random() * 3)];
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 50 + Math.random() * 80;
+                particle.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+                particle.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 800);
             }
-        };
-
-        function setLanguage(lang, evt) {
-            document.querySelectorAll('.lang-switcher .lang-btn').forEach(btn => btn.classList.remove('active'));
-            if(evt) evt.currentTarget.classList.add('active');
-            const t = i18n[lang];
-            document.getElementById('tickerText').innerHTML = t.ticker;
-            document.getElementById('nav-home').innerText = t.navHome;
-            document.getElementById('nav-stats').innerText = t.navStats;
-            document.getElementById('nav-equip').innerText = t.navEquip;
-            document.getElementById('nav-galerie').innerText = t.navGalerie;
-            document.getElementById('nav-messen').innerText = t.navMessen;
-            document.getElementById('nav-partner').innerText = t.navPartner;
-            document.getElementById('nav-kommentare').innerText = t.navKommentare;
-            document.getElementById('nav-kodex').innerText = t.navKodex;
-            document.getElementById('nav-social').innerText = t.navSocial;
-            document.getElementById('nav-bewerbung').innerText = t.navBewerbung;
-            document.getElementById('hero-badge').innerText = t.heroBadge;
-            document.getElementById('hero-sub').innerText = t.heroSub;
-            document.getElementById('btn-gallery').innerText = t.btnGallery;
-            document.getElementById('stat1-desc').innerText = t.stat1Desc;
-            document.getElementById('stat2-desc').innerText = t.stat2Desc;
-            document.getElementById('stat3-desc').innerText = t.stat3Desc;
-            document.getElementById('equip-title').innerText = t.equipTitle;
-            document.getElementById('equip-sub').innerText = t.equipSub;
-            document.getElementById('gallery-title').innerText = t.galleryTitle;
-            document.getElementById('gallery-sub').innerText = t.gallerySub;
-            document.getElementById('kodex-title').innerText = t.kodexTitle;
-            document.getElementById('kodex-sub').innerText = t.kodexSub;
-            document.getElementById('social-sub').innerText = t.socialSub;
-            document.getElementById('form-title').innerText = t.formTitle;
-            document.getElementById('form-sub').innerText = t.formSub;
-            document.getElementById('field-name').placeholder = t.fieldName;
-            document.getElementById('field-email').placeholder = t.fieldEmail;
-            document.getElementById('field-ort').placeholder = t.fieldOrt;
-            document.getElementById('field-msg').placeholder = t.fieldMsg;
-            document.getElementById('btn-submit').innerText = t.btnSubmit;
         }
 
-        function toggleTheme() {
-            const body = document.body;
-            const btn = document.getElementById('themeToggleBtn');
-            if (body.classList.contains('dark-mode')) {
-                body.classList.remove('dark-mode');
-                body.classList.add('light-mode');
-                btn.textContent = '☀️';
-            } else if (body.classList.contains('light-mode')) {
-                body.classList.remove('light-mode');
-                body.classList.add('tactical-mode');
-                btn.textContent = '🔴';
-            } else {
-                body.classList.remove('tactical-mode');
-                body.classList.add('dark-mode');
-                btn.textContent = '🌙';
+        /* ==================================================
+           TASTATUR-EINGABE: "rtw" FÜR FLAPPY RTW
+        ================================================== */
+        let typedKeys = '';
+        document.addEventListener('keydown', (e) => {
+            typedKeys += e.key.toLowerCase();
+            if (typedKeys.length > 5) typedKeys = typedKeys.slice(-5);
+            if (typedKeys.endsWith('rtw')) {
+                typedKeys = '';
+                openFlappyGame();
             }
+        });
+
+        /* ==================================================
+           FEUERWEHR-SNAKE GAME
+        ================================================== */
+        let snakeInterval;
+        function openSnakeGame() {
+            document.getElementById('snakeModal').classList.remove('hidden');
+            startSnakeGame();
+        }
+        function closeSnakeGame() {
+            document.getElementById('snakeModal').classList.add('hidden');
+            clearInterval(snakeInterval);
+        }
+        function startSnakeGame() {
+            const canvas = document.getElementById('snakeCanvas');
+            const ctx = canvas.getContext('2d');
+            const grid = 20;
+            let snake = [{x: 160, y: 160}, {x: 140, y: 160}];
+            let dx = grid, dy = 0;
+            let food = {x: 200, y: 200};
+
+            function placeFood() {
+                food.x = Math.floor(Math.random() * (canvas.width / grid)) * grid;
+                food.y = Math.floor(Math.random() * (canvas.height / grid)) * grid;
+            }
+
+            document.onkeydown = function(e) {
+                if (e.key === 'ArrowLeft' && dx === 0) { dx = -grid; dy = 0; }
+                else if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -grid; }
+                else if (e.key === 'ArrowRight' && dx === 0) { dx = grid; dy = 0; }
+                else if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = grid; }
+            };
+
+            clearInterval(snakeInterval);
+            snakeInterval = setInterval(() => {
+                const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+                if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) return startSnakeGame();
+                for (let i = 0; i < snake.length; i++) {
+                    if (head.x === snake[i].x && head.y === snake[i].y) return startSnakeGame();
+                }
+
+                snake.unshift(head);
+                if (head.x === food.x && head.y === food.y) {
+                    placeFood();
+                } else {
+                    snake.pop();
+                }
+
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.font = '16px sans-serif';
+                ctx.fillText('🔥', food.x, food.y + 16);
+
+                for (let i = 0; i < snake.length; i++) {
+                    ctx.fillStyle = i === 0 ? '#ef4444' : '#f97316';
+                    ctx.fillRect(snake[i].x, snake[i].y, grid-2, grid-2);
+                }
+            }, 120);
+        }
+
+        /* ==================================================
+           FLAPPY RTW GAME
+        ================================================== */
+        let flappyInterval;
+        function openFlappyGame() {
+            document.getElementById('flappyModal').classList.remove('hidden');
+            startFlappyGame();
+        }
+        function closeFlappyGame() {
+            document.getElementById('flappyModal').classList.add('hidden');
+            clearInterval(flappyInterval);
+        }
+        function startFlappyGame() {
+            const canvas = document.getElementById('flappyCanvas');
+            const ctx = canvas.getContext('2d');
+            let rtwY = 200, velocity = 0, gravity = 0.35, jump = -6.5;
+            let pipes = [], frame = 0, score = 0;
+
+            function doJump() { velocity = jump; }
+            document.onkeydown = function(e) { if (e.code === 'Space') doJump(); };
+            canvas.onclick = doJump;
+
+            clearInterval(flappyInterval);
+            flappyInterval = setInterval(() => {
+                velocity += gravity;
+                rtwY += velocity;
+
+                if (frame % 90 === 0) {
+                    const gap = 110;
+                    const topHeight = Math.floor(Math.random() * (canvas.height - gap - 100)) + 30;
+                    pipes.push({ x: canvas.width, top: topHeight, bottom: canvas.height - topHeight - gap });
+                }
+
+                ctx.fillStyle = '#1e293b';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.font = '24px sans-serif';
+                ctx.fillText('🚑', 40, rtwY);
+
+                for (let i = 0; i < pipes.length; i++) {
+                    let p = pipes[i];
+                    p.x -= 2;
+
+                    ctx.fillStyle = '#dc2626';
+                    ctx.fillRect(p.x, 0, 40, p.top);
+                    ctx.fillRect(p.x, canvas.height - p.bottom, 40, p.bottom);
+
+                    if (40 + 20 > p.x && 40 < p.x + 40) {
+                        if (rtwY - 15 < p.top || rtwY + 5 > canvas.height - p.bottom) {
+                            return startFlappyGame();
+                        }
+                    }
+
+                    if (p.x === 38) score++;
+                }
+
+                if (rtwY > canvas.height || rtwY < 0) return startFlappyGame();
+
+                ctx.fillStyle = '#fff';
+                ctx.font = '18px sans-serif';
+                ctx.fillText('Punkte: ' + score, 15, 30);
+
+                frame++;
+            }, 1000 / 60);
+        }
+
+        /* Messe Countdown Logik */
+        function updateCountdowns() {
+            const now = new Date().getTime();
+            const events = [
+                { id: 'f', date: new Date('2026-10-08T09:00:00').getTime() },
+                { id: 'r', date: new Date('2027-05-12T09:00:00').getTime() },
+                { id: 'i', date: new Date('2030-05-20T09:00:00').getTime() }
+            ];
+
+            events.forEach(e => {
+                const diff = e.date - now;
+                if (diff > 0) {
+                    document.getElementById(e.id + '-days').innerText = Math.floor(diff / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+                    document.getElementById(e.id + '-hours').innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+                    document.getElementById(e.id + '-mins').innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+                    document.getElementById(e.id + '-secs').innerText = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
+                }
+            });
+        }
+        setInterval(updateCountdowns, 1000);
+        updateCountdowns();
+
+        /* Standard Skripte */
+        function addLogEntry(e) {
+            e.preventDefault();
+            alert('Vielen Dank! Dein Kommentar wurde abgesendet.');
+            e.target.reset();
         }
 
         function triggerBeaconStorm() {
@@ -846,7 +1023,6 @@
                 loader.style.opacity = '0';
                 loader.style.visibility = 'hidden';
             }, 600);
-            checkNightShift();
         });
 
         let logoClickCount = 0;
@@ -855,93 +1031,18 @@
             if (logoClickCount === 10) {
                 const truck = document.getElementById('easterEggTruck');
                 truck.classList.add('drive-across');
-                setTimeout(() => {
-                    truck.classList.remove('drive-across');
-                    logoClickCount = 0;
-                }, 3200);
+                setTimeout(() => { truck.classList.remove('drive-across'); logoClickCount = 0; }, 3200);
             }
         }
 
         function toggleQRCode() { document.getElementById('qrCodeContainer').classList.toggle('hidden'); }
-
         function toggleBackgroundSelector() { document.getElementById('bgModal').classList.toggle('hidden'); }
         function changeBg(type) {
-            const body = document.body;
-            body.classList.remove('bg-custom-active');
-            if(type === 'default') body.style.backgroundImage = 'none';
-            else if(type === 'fire') body.style.backgroundImage = 'radial-gradient(circle, #450a0a 0%, #0a0f1d 100%)';
-            else if(type === 'police') body.style.backgroundImage = 'radial-gradient(circle, #051b2e 0%, #0a0f1d 100%)';
-            else if(type === 'custom') { document.getElementById('customBgInput').click(); return; }
+            if(type === 'fire') document.body.style.backgroundImage = 'radial-gradient(circle, #450a0a 0%, #0a0f1d 100%)';
+            else if(type === 'police') document.body.style.backgroundImage = 'radial-gradient(circle, #051b2e 0%, #0a0f1d 100%)';
+            else document.body.style.backgroundImage = 'none';
             toggleBackgroundSelector();
         }
-
-        function uploadCustomBg(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.body.style.backgroundImage = `url('${e.target.result}')`;
-                    document.body.classList.add('bg-custom-active');
-                }
-                reader.readAsDataURL(file);
-            }
-            toggleBackgroundSelector();
-        }
-
-        const events = {
-            florian: new Date("October 8, 2026 09:00:00").getTime(),
-            rettmobil: new Date("May 12, 2027 09:00:00").getTime(),
-            interschutz: new Date("May 20, 2030 09:00:00").getTime()
-        };
-
-        function updateCountdowns() {
-            const now = new Date().getTime();
-            function calc(targetId, targetDate) {
-                const diff = targetDate - now;
-                if (diff > 0) {
-                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-                    document.getElementById(targetId + '-days').innerText = String(days).padStart(2, '0');
-                    document.getElementById(targetId + '-hours').innerText = String(hours).padStart(2, '0');
-                    document.getElementById(targetId + '-mins').innerText = String(mins).padStart(2, '0');
-                    document.getElementById(targetId + '-secs').innerText = String(secs).padStart(2, '0');
-                }
-            }
-            calc('f', events.florian);
-            calc('r', events.rettmobil);
-            calc('i', events.interschutz);
-        }
-
-        setInterval(updateCountdowns, 1000);
-        updateCountdowns();
-
-        let animated = false;
-        window.addEventListener('scroll', () => {
-            const statsSection = document.getElementById('stats');
-            if(!statsSection) return;
-            const pos = statsSection.getBoundingClientRect().top;
-            if(pos < window.innerHeight && !animated) {
-                animated = true;
-                document.querySelectorAll('.stat-number').forEach(counter => {
-                    const target = +counter.getAttribute('data-target');
-                    let count = 0;
-                    const speed = target / 50;
-                    const updateCount = () => {
-                        count += speed;
-                        if(count < target) {
-                            counter.innerText = Math.ceil(count);
-                            setTimeout(updateCount, 30);
-                        } else {
-                            counter.innerText = target;
-                        }
-                    };
-                    updateCount();
-                });
-            }
-        });
     </script>
 </body>
 </html>
