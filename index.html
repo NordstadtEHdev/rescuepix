@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rescuepix | BOS Blaulichtfotografie Thüringen</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0088ff">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <!-- Konfetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* ==================================================
+           DEUTSCHES BLAULICHT DOPPELBLITZ / STROBE EFFECT (🚨)
+        ================================================== */
+        .beacon-storm-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 99999;
+            opacity: 0;
+        }
+        .beacon-storm-overlay.active {
+            animation: germanBlueStrobeStorm 0.25s infinite;
+        }
+
+        @keyframes germanBlueStrobeStorm {
+            0% {
+                background: rgba(0, 102, 255, 0.6);
+                box-shadow: inset 0 0 120px rgba(0, 102, 255, 0.9);
+            }
+            20% {
+                background: rgba(0, 0, 0, 0.1);
+                box-shadow: none;
+            }
+            40% {
+                background: rgba(0, 150, 255, 0.8);
+                box-shadow: inset 0 0 150px rgba(0, 150, 255, 1);
+            }
+            60%, 100% {
+                background: rgba(0, 0, 0, 0.2);
+                box-shadow: none;
+            }
+        }
+
+        /* Deutsches Blaulicht Loader Lights (Dual-Blue) */
+        .beacon-loader {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+        }
+        .beacon-light {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #0066ff;
+        }
+        .beacon-light.left {
+            animation: germanBeaconLeft 0.4s infinite alternate;
+        }
+        .beacon-light.right {
+            animation: germanBeaconRight 0.4s infinite alternate;
+        }
+
+        @keyframes germanBeaconLeft {
+            0% { opacity: 0.2; transform: scale(0.9); box-shadow: none; }
+            100% { opacity: 1; transform: scale(1.25); box-shadow: 0 0 30px #0066ff, 0 0 50px #00b7ff; }
+        }
+        @keyframes germanBeaconRight {
+            0% { opacity: 1; transform: scale(1.25); box-shadow: 0 0 30px #0066ff, 0 0 50px #00b7ff; }
+            100% { opacity: 0.2; transform: scale(0.9); box-shadow: none; }
+        }
+
+        /* ==================================================
+           GEHEIME ERFOLGE (ACHIEVEMENT POPUP)
+        ================================================== */
+        .achievement-toast {
+            position: fixed;
+            bottom: -100px;
+            right: 20px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid #00d2ff;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+            border-radius: 12px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100000;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            color: #fff;
+        }
+        .achievement-toast.show {
+            bottom: 20px;
+        }
+        .achievement-icon {
+            font-size: 2.2rem;
+        }
+        .achievement-title {
+            font-weight: bold;
+            color: #00d2ff;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .achievement-desc {
+            font-size: 1rem;
+            margin-top: 2px;
+        }
+
+        /* ==================================================
+           HYDRANT WASSER & FEUERWEHRMANN WISCH-ANIMATION
+        ================================================== */
+        .water-splash-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 99998;
+            opacity: 0;
+            background: radial-gradient(circle, rgba(0, 183, 255, 0.6) 0%, rgba(0, 102, 255, 0) 80%);
+            transition: opacity 0.3s;
+        }
+        .water-splash-overlay.active {
+            opacity: 1;
+            animation: splashEffect 1.2s forwards;
+        }
+        @keyframes splashEffect {
+            0% { opacity: 0; transform: scale(0.8); }
+            30% { opacity: 1; transform: scale(1.05); }
+            100% { opacity: 0; transform: scale(1); }
+        }
+
+        .screen-wiper {
+            position: fixed;
+            top: 0; left: -150px;
+            width: 120px; height: 100vh;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.9);
+            z-index: 99999;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+        .screen-wiper.wiping {
+            animation: wipeScreen 2.2s ease-in-out forwards;
+        }
+        @keyframes wipeScreen {
+            0% { left: -150px; }
+            100% { left: 105vw; }
+        }
+
+        /* WASCHTAG BANNER */
+        .waschtag-banner {
+            background: linear-gradient(90deg, #0284c7, #06b6d4);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body class="dark-mode">
+
+    <!-- WASCHTAG BANNER CONTAINER (1% CHANCE) -->
+    <div id="waschtagContainer"></div>
+
+    <!-- 🚨 DEUTSCHES BLAULICHT LADESCREEN -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="beacon-loader">
+            <div class="beacon-light left"></div>
+            <div class="beacon-light right"></div>
+        </div>
+        <p style="margin-top: 15px;">rescuepix wird geladen...</p>
+    </div>
+
+    <!-- 🚒 EASTER EGG FEUERWEHR AUTO -->
+    <div id="easterEggTruck" class="easter-egg-truck">🚒💨</div>
+
+    <!-- Overlays -->
+    <div id="beaconStormOverlay" class="beacon-storm-overlay"></div>
+    <div id="waterSplash" class="water-splash-overlay"></div>
+    <div id="screenWiper" class="screen-wiper">🧑‍🚒🧽</div>
+
+    <!-- Achievement Toast Popup -->
+    <div id="achievementToast" class="achievement-toast">
+        <div class="achievement-icon" id="achieveIcon">🏆</div>
+        <div>
+            <div class="achievement-title">GEHEIMER ERFOLG FREIGESCHALTET!</div>
+            <div class="achievement-desc" id="achieveDesc">Erfolg freigeschaltet!</div>
+        </div>
+    </div>
+
+    <!-- Live Ticker -->
+    <div class="ticker-bar">
+        <div class="ticker-content" id="tickerText">
+            +++ <strong>LIVE-TICKER:</strong> Neue Einsatzfotos aus Thüringen online! +++ Bleibt auf dem Laufenden auf Instagram @rescuepix +++ Du machst auch Blaulichtfotos? Jetzt unten bewerben! +++
+        </div>
+    </div>
+
+
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="logo" onclick="countLogoClicks()">rescuep<span class="beacon-i">i</span>x</div>
+
+        <nav>
+            <a href="#home" id="nav-home">Start</a>
+            <a href="#stats" id="nav-stats">Zahlen</a>
+            <a href="#equipment" id="nav-equip">Kamera-Gear</a>
+            <a href="#galerie" id="nav-galerie">Galerie</a>
+            <a href="#messen" id="nav-messen">Messen</a>
+            <a href="#partner" id="nav-partner">Partner</a>
+            <a href="#logbuch" id="nav-logbuch">Logbuch</a>
+            <a href="#kodex" id="nav-kodex">Kodex</a>
+            <a href="#social" id="nav-social">Social Media</a>
+            <a href="#bewerbung" id="nav-bewerbung">Bewerbung</a>
+        </nav>
+
+        <div class="controls-wrapper">
+            <button class="control-btn" onclick="triggerScreenWipe()" title="Feuerwehrmann wischt Bildschirm">🧑‍🚒</button>
+            <button class="control-btn" onclick="triggerHydrantSplash()" title="Hydrant spritzt Wasser">🚰</button>
+
+            <button class="control-btn storm-btn" onclick="triggerBeaconStorm()" title="Blaulicht-Gewitter auslösen!">🚨</button>
+            <button id="themeToggleBtn" class="control-btn" onclick="toggleTheme()" title="Design wechseln">🌙</button>
+            <button class="control-btn" onclick="toggleBackgroundSelector()" title="Hintergrundbild ändern">🖼️</button>
+
+            <!-- Sprach-Umschalter -->
+            <div class="lang-switcher">
+                <button class="lang-btn active" onclick="setLanguage('de', event)">🇩🇪</button>
+                <button class="lang-btn" onclick="setLanguage('en', event)">🇬🇧</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero-Bereich -->
+    <section id="home" class="hero">
+        <div class="hero-badge" id="hero-badge">BOS Fotografie Thüringen</div>
+        <h1>rescuep<span class="beacon-i">i</span>x</h1>
+        <p id="hero-sub">Einsatzkräfte, Dynamik und Emotionen im richtigen Moment festgehalten.</p>
+        <div class="hero-buttons">
+            <a href="#galerie" class="btn btn-primary" id="btn-gallery">Galerie ansehen</a>
+        </div>
+    </section>
+
+    <!-- Statistik Section -->
+    <section id="stats" class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number" data-target="2000">0</span><span class="plus">+</span>
+                <p id="stat1-desc">Fotos geschossen</p>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" data-target="5">0</span><span class="plus">+</span>
+                <p id="stat2-desc">Einsätze & Übungen</p>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" data-target="10">0</span><span class="plus">+</span>
+                <p>📍 Städte besucht</p>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" data-target="100">0</span><span class="plus">%</span>
+                <p id="stat3-desc">Leidenschaft & BOS</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 📷 KAMERA EQUIPMENT -->
+    <section id="equipment">
+        <div class="card-container" style="max-width: 1000px;">
+            <h2 id="equip-title" style="text-align: center; margin-bottom: 10px;">📷 Kamera-Equipment & Technik</h2>
+            <p id="equip-sub" class="subtitle" style="text-align: center; margin-bottom: 30px;">
+                Einsatzdokumentation erfordert verlässliches Werkzeug bei Tag und Nacht.
+            </p>
+
+            <div class="equip-grid">
+                <div class="equip-card">
+                    <div class="equip-icon">📷</div>
+                    <h3>Canon EOS 500D</h3>
+                    <span class="equip-badge">Hauptkamera (DSLR)</span>
+                    <ul>
+                        <li><strong>Standard:</strong> Canon EF-S 18-55mm f/3.5-5.6</li>
+                        <li><strong>Tele-Zoom:</strong> Canon EF-S 55-250mm f/4-5.6 IS</li>
+                        <li><strong>Einsatzgebiet:</strong> Tele-Aufnahmen auf Distanz & Details</li>
+                    </ul>
+                </div>
+
+                <div class="equip-card">
+                    <div class="equip-icon">📱</div>
+                    <h3>iPhone 14 Pro & DJI OM 5</h3>
+                    <span class="equip-badge mobile">Mobile Cam & Stabilisierung</span>
+                    <ul>
+                        <li><strong>Sensor:</strong> 48 MP Hauptkamera & 4K HDR</li>
+                        <li><strong>Gimbal:</strong> DJI OM 5 (3-Achsen-Stabilisierung & Verlängerung)</li>
+                        <li><strong>Features:</strong> Seidenweiche Kamerafahrten, Nachtmodus & ProRAW</li>
+                        <li><strong>Einsatzgebiet:</strong> Dynamic Shots, Lagedokumentation & Socials</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ☁️ GOOGLE DRIVE GALERIE -->
+    <section id="galerie" class="gallery-section">
+        <div class="card-container" style="max-width: 1100px;">
+            <h2 id="gallery-title" style="text-align: center;">Einsatzgalerie</h2>
+            <p class="subtitle" id="gallery-sub" style="text-align: center; margin-bottom: 30px;">
+                Alle Fotos werden direkt live aus unserem Google Cloud Ordner geladen.
+            </p>
+            
+            <div id="driveGalleryContainer" style="width: 100%; margin: 0 auto;" onclick="registerImageClick()">
+                <iframe src="https://drive.google.com/embeddedfolderview?id=1l8gVL3V03ByySeC6OptBHeako4YqV4N2#grid" 
+                        style="width:100%; height:700px; border:1px solid var(--border-color); border-radius:14px; background: rgba(0,0,0,0.2);" 
+                        allowfullscreen>
+                </iframe>
+            </div>
+
+            <div style="text-align: center; margin-top: 25px;">
+                <button class="btn social-btn" onclick="toggleQRCode()">📲 Seite per QR-Code teilen</button>
+                <div id="qrCodeContainer" class="qr-container hidden">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://rescuepix.vercel.app" alt="QR Code" style="margin-top: 15px; border-radius: 8px;">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Scannen zum Aufrufen auf dem Smartphone</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ⏱️ MESSE COUNTDOWN SECTION -->
+    <section id="messen" class="messen-section">
+        <div class="card-container" style="max-width: 1000px;">
+            <h2 style="text-align: center;">🚨 BOS Messe-Countdowns</h2>
+            <p class="subtitle" style="text-align: center; margin-bottom: 30px;">
+                Die nächsten großen Treffpunkte für Feuerwehr, Rettungsdienst & Katastrophenschutz!
+            </p>
+
+            <div class="countdown-grid">
+                <div class="countdown-card">
+                    <span class="badge fire-badge">🔥 Dresden</span>
+                    <h3>FLORIAN 2026</h3>
+                    <p class="event-date">08. – 10. Oktober 2026</p>
+                    <div class="timer" id="timerFlorian">
+                        <div><span id="f-days">00</span><label>Tage</label></div>
+                        <div><span id="f-hours">00</span><label>Std</label></div>
+                        <div><span id="f-mins">00</span><label>Min</label></div>
+                        <div><span id="f-secs">00</span><label>Sek</label></div>
+                    </div>
+                </div>
+
+                <div class="countdown-card">
+                    <span class="badge ambu-badge">🚑 Fulda</span>
+                    <h3>RETTmobil 2027</h3>
+                    <p class="event-date">12. – 14. Mai 2027</p>
+                    <div class="timer" id="timerRettmobil">
+                        <div><span id="r-days">00</span><label>Tage</label></div>
+                        <div><span id="r-hours">00</span><label>Std</label></div>
+                        <div><span id="r-mins">00</span><label>Min</label></div>
+                        <div><span id="r-secs">00</span><label>Sek</label></div>
+                    </div>
+                </div>
+
+                <div class="countdown-card">
+                    <span class="badge inter-badge">🌍 Hannover</span>
+                    <h3>INTERSCHUTZ 2030</h3>
+                    <p class="event-date">20. – 25. Mai 2030</p>
+                    <div class="timer" id="timerInterschutz">
+                        <div><span id="i-days">00</span><label>Tage</label></div>
+                        <div><span id="i-hours">00</span><label>Std</label></div>
+                        <div><span id="i-mins">00</span><label>Min</label></div>
+                        <div><span id="i-secs">00</span><label>Sek</label></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 🤝 PARTNER & NETZWERK -->
+    <section id="partner" class="partner-section">
+        <div class="card-container" style="max-width: 900px; text-align: center;">
+            <h2>🤝 Partner & Netzwerk</h2>
+            <p class="subtitle" style="margin-bottom: 25px;">Starke Zusammenarbeit für starke Öffentlichkeitsarbeit in Thüringen.</p>
+
+            <div class="partner-grid">
+                <div class="partner-card">
+                    <img src="image.png" alt="BOS Bilder Thüringen Logo" class="partner-logo">
+                    <h4>BOS Bilder Thüringen</h4>
+                    <p>Gemeinsames Netzwerk für Einsatzfotografie & Berichterstattung</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 🚨 KAMERADEN-LOGBUCH / FEEDBACK -->
+    <section id="logbuch" class="feedback-section">
+        <div class="card-container" style="max-width: 900px;">
+            <h2 style="text-align: center;">📖 Kameraden-Logbuch</h2>
+            <p class="subtitle" style="text-align: center; margin-bottom: 30px;">
+                Feedback, Dankeschön oder Verbesserungsvorschläge von Einsatzkräften & Besuchern.
+            </p>
+
+            <div class="logbuch-list"></div>
+
+            <form class="logbuch-form" onsubmit="addLogEntry(event)">
+                <h3>Eintrag hinterlassen</h3>
+                <div class="input-group">
+                    <input type="text" id="logName" placeholder="Dein Name / Organisation (z. B.Rainer  Winkle)" required>
+                    <select id="logType" class="log-select">
+                        <option value="Dankeschön">❤️ Dankeschön</option>
+                        <option value="Verbesserung">💡 Verbesserungsvorschlag</option>
+                        <option value="Allgemein">💬 Allgemein</option>
+                    </select>
+                </div>
+                <textarea id="logText" rows="3" placeholder="Dein Feedback oder deine Nachricht an rescuepix..." required></textarea>
+                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Eintrag absenden</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 🛡️ VERHALTENSKODEX -->
+    <section id="kodex">
+        <div class="card-container" style="max-width: 900px; border-left: 4px solid var(--glow-blue);">
+            <h2 id="kodex-title">🛡️ Verhaltenskodex & Einsatzethik</h2>
+            <p id="kodex-sub" class="subtitle" style="margin-bottom: 20px;">
+                Respektvoller Umgang an der Einsatzstelle hat oberste Priorität.
+            </p>
+
+            <div class="kodex-grid">
+                <div class="kodex-item">
+                    <h4>🚫 Keine Behinderung</h4>
+                    <p>Einsatzkräfte haben immer Vorrang. Die Aufnahmen entstehen mit ausreichend Sicherheitsabstand (Tele-Objektiv).</p>
+                </div>
+                <div class="kodex-item">
+                    <h4>🔒 Schutz der Persönlichkeit</h4>
+                    <p>Kennzeichen, Gesichter Betroffener, Verletzungen sowie Einsatznummern werden konsequent unkenntlich gemacht.</p>
+                </div>
+                <div class="kodex-item">
+                    <h4>🤝 Transparenz </h4>
+                    <p>Volle Transparenz.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Media Links -->
+    <section id="social" class="form-section">
+        <div class="card-container" style="max-width: 800px;">
+            <h2 style="text-align: center;">Social Media</h2>
+            <p class="subtitle" id="social-sub" style="text-align: center;">Besuche unsere offiziellen Kanäle:</p>
+
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 20px;">
+                <a href="https://www.instagram.com/rescuepix?igsh=d3AwdmNta2R5Mmtu&utm_source=qr" target="_blank" class="btn social-btn insta" style="flex: 1; min-width: 200px; text-align: center;">
+                    Instagram (@rescuepix)
+                </a>
+                <a href="https://www.tiktok.com/@rescuepix?_r=1&_t=ZG-98Xnu5XyusS" target="_blank" class="btn social-btn tiktok" style="flex: 1; min-width: 200px; text-align: center;">
+                    TikTok (@rescuepix)
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bewerbungsformular -->
+    <section id="bewerbung" class="form-section">
+        <div class="card-container" style="max-width: 800px;">
+            <h2 id="form-title" style="text-align: center;">Bewerbung: BOS Bilder Thüringen</h2>
+            <p class="subtitle" id="form-sub" style="text-align: center;">Du machst selbst Blaulichtfotos in Thüringen? Werde Teil unseres Teams!</p>
+
+            <form action="https://formspree.io/f/xjgnnvwn" method="POST" class="contact-form">
+                <div class="input-group">
+                    <input type="text" name="name" id="field-name" placeholder="Dein Name" required>
+                    <input type="email" name="email" id="field-email" placeholder="Deine E-Mail Adresse" required>
+                </div>
+                <input type="text" name="ort" id="field-ort" placeholder="Dein Landkreis / Ort in Thüringen" required>
+                <textarea name="nachricht" id="field-msg" rows="4" placeholder="Stelle dich kurz vor..." required></textarea>
+                <button type="submit" class="btn btn-primary" id="btn-submit">Bewerbung absenden</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 🖼️ HINTERGRUND-AUSWAHL MODAL -->
+    <div id="bgModal" class="bg-modal hidden">
+        <div class="bg-modal-content">
+            <h3>🖼️ Wähle dein Hintergrundbild</h3>
+            <div class="bg-grid">
+                <div class="bg-option" onclick="changeBg('default')">
+                    <div class="bg-preview bg-def"></div>
+                    <span>Standard Dunkel</span>
+                </div>
+                <div class="bg-option" onclick="changeBg('fire')">
+                    <div class="bg-preview bg-f"></div>
+                    <span>Feuerwehr-Einsatz</span>
+                </div>
+                <div class="bg-option" onclick="changeBg('police')">
+                    <div class="bg-preview bg-p"></div>
+                    <span>Polizei-Nacht</span>
+                </div>
+                <div class="bg-option" onclick="changeBg('custom')">
+                    <div class="bg-preview bg-c">📁</div>
+                    <span>Eigenes Bild Upload</span>
+                </div>
+            </div>
+            <input type="file" id="customBgInput" accept="image/*" style="display:none;" onchange="uploadCustomBg(event)">
+            <button class="btn btn-primary" onclick="toggleBackgroundSelector()" style="margin-top:15px;">Schließen</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 rescuepix | BOS Blaulichtfotografie Thüringen</p>
+    </footer>
+
+    <!-- INTERAKTIVE SKRIPTE -->
+    <script>
+        /* ==================================================
+           1. ERFOLGE / ACHIEVEMENTS SYSTEM
+        ================================================== */
+        const unlockedAchievements = new Set();
+
+        function unlockAchievement(icon, title, desc) {
+            const key = title;
+            if (unlockedAchievements.has(key)) return;
+            unlockedAchievements.add(key);
+
+            document.getElementById('achieveIcon').innerText = icon;
+            document.getElementById('achieveDesc').innerText = title + ' – ' + desc;
+            
+            const toast = document.getElementById('achievementToast');
+            toast.classList.add('show');
+
+            if (window.confetti) {
+                confetti({ particleCount: 80, spread: 70, origin: { y: 0.8 } });
+            }
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 5000);
+        }
+
+        function checkNightShift() {
+            const hour = new Date().getHours();
+            if (hour >= 0 && hour < 5) {
+                unlockAchievement('🌙', 'Nachtschicht', 'Website zwischen 0 und 5 Uhr besucht.');
+            }
+        }
+
+        setTimeout(() => {
+            unlockAchievement('☕', 'Kaffeepause', '10 Minuten auf der Seite gewesen.');
+        }, 600000);
+
+        let galleryClicks = 0;
+        function registerImageClick() {
+            galleryClicks += 5;
+            if (galleryClicks >= 100) {
+                unlockAchievement('📷', 'Spotter', '100 Bilder angesehen.');
+            }
+        }
+
+        if (Math.random() <= 0.01) {
+            document.getElementById('waschtagContainer').innerHTML = 
+                '<div class="waschtag-banner">✨ Heute ist Waschtag – alle Fahrzeuge glänzen extra! ✨</div>';
+        }
+
+        let totalClicks = 0;
+        document.addEventListener('click', () => {
+            totalClicks++;
+            if (totalClicks === 100) {
+                alert('Du hast wohl zu viel Freizeit. 😂');
+            }
+        });
+
+        /* ==================================================
+           2. KONAMI CODE (↑↑↓↓←→←→BA)
+        ================================================== */
+        const konamiCode = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+        let konamiIndex = 0;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === konamiCode[konamiIndex].toLowerCase()) {
+                konamiIndex++;
+                if (konamiIndex === konamiCode.length) {
+                    triggerBeaconStorm();
+                    unlockAchievement('🎮', 'Blaulicht-Gewitter', 'Konami-Code erfolgreich eingegeben!');
+                    konamiIndex = 0;
+                }
+            } else {
+                konamiIndex = 0;
+            }
+        });
+
+        /* ==================================================
+           3. FEUERWEHRMANN WISCHER & HYDRANT WATER SPLASH
+        ================================================== */
+        function triggerScreenWipe() {
+            const wiper = document.getElementById('screenWiper');
+            wiper.classList.remove('wiping');
+            void wiper.offsetWidth;
+            wiper.classList.add('wiping');
+        }
+
+        function triggerHydrantSplash() {
+            const splash = document.getElementById('waterSplash');
+            splash.classList.remove('active');
+            void splash.offsetWidth;
+            splash.classList.add('active');
+            setTimeout(() => splash.classList.remove('active'), 1200);
+        }
+
+        /* ==================================================
+           4. STANDARD FUNKTIONEN & INITIALISIERUNG
+        ================================================== */
+        const i18n = {
+            de: {
+                ticker: '+++ <strong>LIVE-TICKER:</strong> Neue Einsatzfotos aus Thüringen online! +++ Bleibt auf dem Laufenden auf Instagram @rescuepix +++ Du machst auch Blaulichtfotos? Jetzt unten bewerben! +++',
+                navHome: 'Start', navStats: 'Zahlen', navEquip: 'Kamera-Gear', navGalerie: 'Galerie', navMessen: 'Messen', navPartner: 'Partner', navLogbuch: 'Logbuch', navKodex: 'Kodex', navSocial: 'Social Media', navBewerbung: 'Bewerbung',
+                heroBadge: 'BOS Fotografie Thüringen', heroSub: 'Einsatzkräfte, Dynamik und Emotionen im richtigen Moment festgehalten.', btnGallery: 'Galerie ansehen',
+                stat1Desc: 'Fotos geschossen', stat2Desc: 'Einsätze & Übungen', stat3Desc: 'Leidenschaft & BOS', equipTitle: '📷 Kamera-Equipment & Technik', equipSub: 'Einsatzdokumentation erfordert verlässliches Werkzeug bei Tag und Nacht.',
+                galleryTitle: 'Einsatzgalerie', gallerySub: 'Alle Fotos werden direkt live aus unserem Google Cloud Ordner geladen.', kodexTitle: '🛡️ Verhaltenskodex & Einsatzethik', kodexSub: 'Respektvoller Umgang an der Einsatzstelle hat oberste Priorität.',
+                socialSub: 'Besuche unsere offiziellen Kanäle:', formTitle: 'Bewerbung: BOS Bilder Thüringen', formSub: 'Du machst selbst Blaulichtfotos in Thüringen? Werde Teil unseres Teams!',
+                fieldName: 'Dein Name', fieldEmail: 'Deine E-Mail Adresse', fieldOrt: 'Dein Landkreis / Ort in Thüringen', fieldMsg: 'Stelle dich kurz vor...', btnSubmit: 'Bewerbung absenden'
+            },
+            en: {
+                ticker: '+++ <strong>LIVE TICKER:</strong> New emergency response photos from Thuringia online! +++ Follow us on Instagram @rescuepix +++ Are you an emergency photographer? Apply below! +++',
+                navHome: 'Home', navStats: 'Stats', navEquip: 'Camera Gear', navGalerie: 'Gallery', navMessen: 'Fairs', navPartner: 'Partners', navLogbuch: 'Logbook', navKodex: 'Code of Ethics', navSocial: 'Social Media', navBewerbung: 'Apply',
+                heroBadge: 'Emergency Photography Thuringia', heroSub: 'Emergency services, action, and emotions captured at the right moment.', btnGallery: 'View Gallery',
+                stat1Desc: 'Photos Taken', stat2Desc: 'Missions & Drills', stat3Desc: 'Passion & Dedication', equipTitle: '📷 Camera Equipment & Gear', equipSub: 'Emergency documentation requires reliable tools day and night.',
+                galleryTitle: 'Action Gallery', gallerySub: 'All photos are loaded directly from our Google Cloud folder.', kodexTitle: '🛡️ Code of Ethics & Privacy', kodexSub: 'Respectful and professional conduct at scenes is our highest priority.',
+                socialSub: 'Visit our official channels:', formTitle: 'Application: Emergency Photography', formSub: 'Do you take emergency responder photos in Thuringia? Join our team!',
+                fieldName: 'Your Name', fieldEmail: 'Your Email Address', fieldOrt: 'Your Region / District in Thuringia', fieldMsg: 'Introduce yourself briefly...', btnSubmit: 'Submit Application'
+            }
+        };
+
+        function setLanguage(lang, evt) {
+            document.querySelectorAll('.lang-switcher .lang-btn').forEach(btn => btn.classList.remove('active'));
+            if(evt) evt.currentTarget.classList.add('active');
+            const t = i18n[lang];
+            document.getElementById('tickerText').innerHTML = t.ticker;
+            document.getElementById('nav-home').innerText = t.navHome;
+            document.getElementById('nav-stats').innerText = t.navStats;
+            document.getElementById('nav-equip').innerText = t.navEquip;
+            document.getElementById('nav-galerie').innerText = t.navGalerie;
+            document.getElementById('nav-messen').innerText = t.navMessen;
+            document.getElementById('nav-partner').innerText = t.navPartner;
+            document.getElementById('nav-logbuch').innerText = t.navLogbuch;
+            document.getElementById('nav-kodex').innerText = t.navKodex;
+            document.getElementById('nav-social').innerText = t.navSocial;
+            document.getElementById('nav-bewerbung').innerText = t.navBewerbung;
+            document.getElementById('hero-badge').innerText = t.heroBadge;
+            document.getElementById('hero-sub').innerText = t.heroSub;
+            document.getElementById('btn-gallery').innerText = t.btnGallery;
+            document.getElementById('stat1-desc').innerText = t.stat1Desc;
+            document.getElementById('stat2-desc').innerText = t.stat2Desc;
+            document.getElementById('stat3-desc').innerText = t.stat3Desc;
+            document.getElementById('equip-title').innerText = t.equipTitle;
+            document.getElementById('equip-sub').innerText = t.equipSub;
+            document.getElementById('gallery-title').innerText = t.galleryTitle;
+            document.getElementById('gallery-sub').innerText = t.gallerySub;
+            document.getElementById('kodex-title').innerText = t.kodexTitle;
+            document.getElementById('kodex-sub').innerText = t.kodexSub;
+            document.getElementById('social-sub').innerText = t.socialSub;
+            document.getElementById('form-title').innerText = t.formTitle;
+            document.getElementById('form-sub').innerText = t.formSub;
+            document.getElementById('field-name').placeholder = t.fieldName;
+            document.getElementById('field-email').placeholder = t.fieldEmail;
+            document.getElementById('field-ort').placeholder = t.fieldOrt;
+            document.getElementById('field-msg').placeholder = t.fieldMsg;
+            document.getElementById('btn-submit').innerText = t.btnSubmit;
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('themeToggleBtn');
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                btn.textContent = '☀️';
+            } else if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                body.classList.add('tactical-mode');
+                btn.textContent = '🔴';
+            } else {
+                body.classList.remove('tactical-mode');
+                body.classList.add('dark-mode');
+                btn.textContent = '🌙';
+            }
+        }
+
+        function triggerBeaconStorm() {
+            const overlay = document.getElementById('beaconStormOverlay');
+            overlay.classList.add('active');
+            setTimeout(() => { overlay.classList.remove('active'); }, 2500);
+        }
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loadingScreen');
+                loader.style.opacity = '0';
+                loader.style.visibility = 'hidden';
+            }, 800);
+            checkNightShift();
+        });
+
+        let logoClickCount = 0;
+        function countLogoClicks() {
+            logoClickCount++;
+            if (logoClickCount === 10) {
+                const truck = document.getElementById('easterEggTruck');
+                truck.classList.add('drive-across');
+                setTimeout(() => {
+                    truck.classList.remove('drive-across');
+                    logoClickCount = 0;
+                }, 3200);
+            }
+        }
+
+        function toggleQRCode() { document.getElementById('qrCodeContainer').classList.toggle('hidden'); }
+
+        function addLogEntry(e) {
+            e.preventDefault();
+            const name = document.getElementById('logName').value;
+            const type = document.getElementById('logType').value;
+            const text = document.getElementById('logText').value;
+
+            const list = document.querySelector('.logbuch-list');
+            const newEntry = document.createElement('div');
+            newEntry.className = 'log-entry';
+            newEntry.style.borderLeftColor = '#00d2ff';
+            
+            newEntry.innerHTML = `
+                <div class="log-header">
+                    <span class="log-badge">${type} - ${name}</span>
+                    <span class="log-date">Heute</span>
+                </div>
+                <p class="log-text">„${text}“</p>
+            `;
+
+            list.prepend(newEntry);
+            e.target.reset();
+            alert('Vielen Dank für dein Feedback im Kameraden-Logbuch!');
+        }
+
+        function toggleBackgroundSelector() { document.getElementById('bgModal').classList.toggle('hidden'); }
+        function changeBg(type) {
+            const body = document.body;
+            body.classList.remove('bg-custom-active');
+            if(type === 'default') body.style.backgroundImage = 'none';
+            else if(type === 'fire') body.style.backgroundImage = 'radial-gradient(circle, #450a0a 0%, #0a0f1d 100%)';
+            else if(type === 'police') body.style.backgroundImage = 'radial-gradient(circle, #051b2e 0%, #0a0f1d 100%)';
+            else if(type === 'custom') { document.getElementById('customBgInput').click(); return; }
+            toggleBackgroundSelector();
+        }
+
+        function uploadCustomBg(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.body.style.backgroundImage = `url('${e.target.result}')`;
+                    document.body.classList.add('bg-custom-active');
+                }
+                reader.readAsDataURL(file);
+            }
+            toggleBackgroundSelector();
+        }
+
+        const events = {
+            florian: new Date("October 8, 2026 09:00:00").getTime(),
+            rettmobil: new Date("May 12, 2027 09:00:00").getTime(),
+            interschutz: new Date("May 20, 2030 09:00:00").getTime()
+        };
+
+        function updateCountdowns() {
+            const now = new Date().getTime();
+            function calc(targetId, targetDate) {
+                const diff = targetDate - now;
+                if (diff > 0) {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    document.getElementById(targetId + '-days').innerText = String(days).padStart(2, '0');
+                    document.getElementById(targetId + '-hours').innerText = String(hours).padStart(2, '0');
+                    document.getElementById(targetId + '-mins').innerText = String(mins).padStart(2, '0');
+                    document.getElementById(targetId + '-secs').innerText = String(secs).padStart(2, '0');
+                }
+            }
+            calc('f', events.florian);
+            calc('r', events.rettmobil);
+            calc('i', events.interschutz);
+        }
+
+        setInterval(updateCountdowns, 1000);
+        updateCountdowns();
+
+        let animated = false;
+        window.addEventListener('scroll', () => {
+            const statsSection = document.getElementById('stats');
+            if(!statsSection) return;
+            const pos = statsSection.getBoundingClientRect().top;
+            if(pos < window.innerHeight && !animated) {
+                animated = true;
+                document.querySelectorAll('.stat-number').forEach(counter => {
+                    const target = +counter.getAttribute('data-target');
+                    let count = 0;
+                    const speed = target / 50;
+                    const updateCount = () => {
+                        count += speed;
+                        if(count < target) {
+                            counter.innerText = Math.ceil(count);
+                            setTimeout(updateCount, 30);
+                        } else {
+                            counter.innerText = target;
+                        }
+                    };
+                    updateCount();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
